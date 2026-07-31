@@ -177,6 +177,7 @@ PROMPT;
                     'count'      => (int) $parsed['count'],
                     'confidence' => $parsed['confidence'] ?? 'medium',
                     'notes'      => $parsed['notes'] ?? '',
+                    'boxes'      => $parsed['boxes'] ?? [],
                 ]);
             }
 
