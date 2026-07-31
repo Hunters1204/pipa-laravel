@@ -15,11 +15,20 @@ class DashboardController extends Controller
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }
 
-        $warehouses = Warehouse::withCount('blocks')->get();
-        
-        $totalOpnames = StockOpname::count();
-        $totalBundles = StockOpname::sum('total_bundles');
-        $totalPcs = StockOpname::sum('total_pcs');
+        $query = Warehouse::withCount('blocks');
+        if (Auth::user()->warehouse_id) {
+            $query->where('id', Auth::user()->warehouse_id);
+        }
+        $warehouses = $query->get();
+        $opnameQuery = StockOpname::query();
+        if (Auth::user()->warehouse_id) {
+            $opnameQuery->whereHas('block', function($q) {
+                $q->where('warehouse_id', Auth::user()->warehouse_id);
+            });
+        }
+        $totalOpnames = $opnameQuery->count();
+        $totalBundles = (clone $opnameQuery)->sum('total_bundles');
+        $totalPcs = (clone $opnameQuery)->sum('total_pcs');
         $totalWeight = StockOpname::sum('total_weight');
 
         // Progress per warehouse

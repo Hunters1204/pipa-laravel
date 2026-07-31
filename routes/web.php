@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/gudang/{id}', [WarehouseController::class, 'show'])->name('warehouse.show');
+    Route::get('/gudang/{warehouse}', [WarehouseController::class, 'show'])->name('warehouse.show');
 
     // Opname
     Route::get('/opname/{warehouse}/{block}', [StockOpnameController::class, 'create'])->name('opname.create');

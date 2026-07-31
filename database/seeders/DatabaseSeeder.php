@@ -17,22 +17,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 0. Seed 3 Petugas Users (Akbar, Reo, Dendi)
-        User::updateOrCreate(
-            ['email' => 'akbar@spindo.com'],
-            ['name' => 'Akbar', 'password' => 'password']
-        );
-
-        User::updateOrCreate(
-            ['email' => 'reo@spindo.com'],
-            ['name' => 'Reo', 'password' => 'password']
-        );
-
-        User::updateOrCreate(
-            ['email' => 'dendi@spindo.com'],
-            ['name' => 'Dendi', 'password' => 'Dendiaprilio1204']
-        );
-
         // 1. Seed Warehouses & 36 Blocks each (A1-L3)
         $warehouses = [
             ['name' => 'Gudang 1', 'description' => 'Area Utama - Unit 7 Gresik'],
@@ -41,9 +25,11 @@ class DatabaseSeeder extends Seeder
         ];
 
         $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
-
+        
+        $whModels = [];
         foreach ($warehouses as $index => $whData) {
             $wh = Warehouse::firstOrCreate(['name' => $whData['name']], $whData);
+            $whModels[$wh->name] = $wh->id;
 
             foreach ($letters as $letter) {
                 for ($num = 1; $num <= 3; $num++) {
@@ -57,7 +43,23 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 2. Seed Pipe Categories
+        // 2. Seed 3 Petugas Users (Akbar, Reo, Dendi) with assigned Warehouses
+        User::updateOrCreate(
+            ['email' => 'akbar@spindo.com'],
+            ['name' => 'Akbar', 'password' => 'password', 'warehouse_id' => $whModels['Gudang 1'] ?? null]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'reo@spindo.com'],
+            ['name' => 'Reo', 'password' => 'password', 'warehouse_id' => $whModels['Gudang 2'] ?? null]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'dendi@spindo.com'],
+            ['name' => 'Dendi', 'password' => 'Dendiaprilio1204', 'warehouse_id' => $whModels['Gudang 3'] ?? null]
+        );
+
+        // 3. Seed Pipe Categories
         $categories = [
             ['code' => 'hitam',    'name' => 'PIPA HITAM'],
             ['code' => 'galvanis', 'name' => 'PIPA GALVANIS'],
