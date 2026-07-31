@@ -72,17 +72,22 @@ PROMPT;
             ],
         ];
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        // Auto-detect key format: standard (AIzaSy) vs auth (AQ.)
+        $isStandardKey = str_starts_with($apiKey, 'AIzaSy');
+        $baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        $url = $isStandardKey ? ($baseUrl . '?key=' . $apiKey) : $baseUrl;
+
+        $headers = ['Content-Type: application/json'];
+        if (!$isStandardKey) {
+            $headers[] = 'x-goog-api-key: ' . $apiKey;
+        }
 
         try {
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST           => true,
-                CURLOPT_HTTPHEADER     => [
-                    'Content-Type: application/json',
-                    'x-goog-api-key: ' . $apiKey,
-                ],
+                CURLOPT_HTTPHEADER     => $headers,
                 CURLOPT_POSTFIELDS     => json_encode($payload),
                 CURLOPT_TIMEOUT        => 30,
                 CURLOPT_SSL_VERIFYPEER => false,
