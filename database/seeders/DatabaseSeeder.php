@@ -20,12 +20,12 @@ class DatabaseSeeder extends Seeder
         // 0. Seed 3 Petugas Users (Akbar, Reo, Dendi)
         User::updateOrCreate(
             ['email' => 'akbar@spindo.com'],
-            ['name' => 'Akbar', 'password' => 'password']
+            ['name' => 'Akbar', 'password' => 'akbar1122']
         );
 
         User::updateOrCreate(
             ['email' => 'reo@spindo.com'],
-            ['name' => 'Reo', 'password' => 'password']
+            ['name' => 'Reo', 'password' => 'reo1122']
         );
 
         User::updateOrCreate(

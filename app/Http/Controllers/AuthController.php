@@ -10,17 +10,25 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        // Force update Dendi's password to ensure the change is applied
-        $dendi = User::where('email', 'dendi@spindo.com')->first();
-        if ($dendi) {
-            $dendi->update(['password' => 'Dendiaprilio1204']);
+        // Force update passwords to ensure the change is applied
+        $usersToUpdate = [
+            'dendi@spindo.com' => 'Dendiaprilio1204',
+            'akbar@spindo.com' => 'akbar1122',
+            'reo@spindo.com'   => 'reo1122',
+        ];
+        
+        foreach ($usersToUpdate as $email => $password) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->update(['password' => $password]);
+            }
         }
 
         // Auto-seed users if database is empty (fallback for when seeder doesn't run)
         if (User::count() === 0) {
             $defaultUsers = [
-                ['name' => 'Akbar', 'email' => 'akbar@spindo.com', 'password' => 'password'],
-                ['name' => 'Reo',   'email' => 'reo@spindo.com',   'password' => 'password'],
+                ['name' => 'Akbar', 'email' => 'akbar@spindo.com', 'password' => 'akbar1122'],
+                ['name' => 'Reo',   'email' => 'reo@spindo.com',   'password' => 'reo1122'],
                 ['name' => 'Dendi', 'email' => 'dendi@spindo.com', 'password' => 'Dendiaprilio1204'],
             ];
             foreach ($defaultUsers as $u) {
