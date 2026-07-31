@@ -18,23 +18,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 0. Seed 3 Petugas Users (Akbar, Reo, Dendi)
-        User::create([
-            'name'     => 'Akbar',
-            'email'    => 'akbar@spindo.com',
-            'password' => Hash::make('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'akbar@spindo.com'],
+            ['name' => 'Akbar', 'password' => Hash::make('password')]
+        );
 
-        User::create([
-            'name'     => 'Reo',
-            'email'    => 'reo@spindo.com',
-            'password' => Hash::make('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'reo@spindo.com'],
+            ['name' => 'Reo', 'password' => Hash::make('password')]
+        );
 
-        User::create([
-            'name'     => 'Dendi',
-            'email'    => 'dendi@spindo.com',
-            'password' => Hash::make('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'dendi@spindo.com'],
+            ['name' => 'Dendi', 'password' => Hash::make('password')]
+        );
 
         // 1. Seed Warehouses & 36 Blocks each (A1-L3)
         $warehouses = [
@@ -46,18 +43,16 @@ class DatabaseSeeder extends Seeder
         $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
         foreach ($warehouses as $index => $whData) {
-            $wh    = Warehouse::create($whData);
-            $whNum = $index + 1;
+            $wh = Warehouse::firstOrCreate(['name' => $whData['name']], $whData);
 
             foreach ($letters as $letter) {
                 for ($num = 1; $num <= 3; $num++) {
                     $code = "{$letter}{$num}";
                     $sloc = "7A" . strtoupper($letter) . $num;
-                    Block::create([
-                        'warehouse_id' => $wh->id,
-                        'code'         => $code,
-                        'sloc_code'    => $sloc,
-                    ]);
+                    Block::firstOrCreate(
+                        ['warehouse_id' => $wh->id, 'code' => $code],
+                        ['sloc_code' => $sloc]
+                    );
                 }
             }
         }
@@ -69,7 +64,7 @@ class DatabaseSeeder extends Seeder
             ['code' => 'kotak',    'name' => 'PIPA KOTAK / HOLLOW'],
         ];
         foreach ($categories as $cat) {
-            PipeCategory::create($cat);
+            PipeCategory::firstOrCreate(['code' => $cat['code']], $cat);
         }
 
         // 3. Seed Pipe Sizes
@@ -90,7 +85,10 @@ class DatabaseSeeder extends Seeder
 
         $sizeModels = [];
         foreach ($sizes as $s) {
-            $sizeModels[$s['size_label']] = PipeSize::create($s);
+            $sizeModels[$s['size_label']] = PipeSize::firstOrCreate(
+                ['size_label' => $s['size_label']],
+                ['pcs_per_bundle' => $s['pcs_per_bundle']]
+            );
         }
 
         // 4. Seed Pipe Types (Grade) — G-A dan G-B
@@ -101,7 +99,7 @@ class DatabaseSeeder extends Seeder
 
         $typeModels = [];
         foreach ($types as $t) {
-            $typeModels[$t['code']] = PipeType::create($t);
+            $typeModels[$t['code']] = PipeType::firstOrCreate(['code' => $t['code']], $t);
         }
 
         // 5. Seed Pipe Classes
@@ -113,7 +111,7 @@ class DatabaseSeeder extends Seeder
             ['code' => 'MED',   'name' => 'MED'],
         ];
         foreach ($classes as $cl) {
-            PipeClass::create($cl);
+            PipeClass::firstOrCreate(['code' => $cl['code']], $cl);
         }
 
         // 6. Seed Pipe Weights (Grade A & B per bundle in KG)
@@ -138,11 +136,10 @@ class DatabaseSeeder extends Seeder
                 $sizeObj = $sizeModels[$sizeLabel];
                 foreach ($typeWeights as $typeCode => $wKg) {
                     if (isset($typeModels[$typeCode])) {
-                        PipeWeight::create([
-                            'pipe_size_id'     => $sizeObj->id,
-                            'pipe_type_id'     => $typeModels[$typeCode]->id,
-                            'weight_per_bundle' => $wKg,
-                        ]);
+                        PipeWeight::firstOrCreate(
+                            ['pipe_size_id' => $sizeObj->id, 'pipe_type_id' => $typeModels[$typeCode]->id],
+                            ['weight_per_bundle' => $wKg]
+                        );
                     }
                 }
             }
