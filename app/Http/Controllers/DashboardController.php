@@ -10,6 +10,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Auto-seed master data if database is empty
+        if (Warehouse::count() === 0) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        }
+
         $warehouses = Warehouse::withCount('blocks')->get();
         
         $totalOpnames = StockOpname::count();
