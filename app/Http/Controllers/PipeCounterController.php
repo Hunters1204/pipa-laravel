@@ -72,9 +72,12 @@ PROMPT;
             ],
         ];
 
+        $primaryModel = 'gemini-3.6-flash';
+        $fallbackModel = 'gemini-3.5-flash';
+
         // Auto-detect key format: standard (AIzaSy) vs auth (AQ.)
         $isStandardKey = str_starts_with($apiKey, 'AIzaSy');
-        $baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        $baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$primaryModel}:generateContent";
         $url = $isStandardKey ? ($baseUrl . '?key=' . $apiKey) : $baseUrl;
 
         $headers = ['Content-Type: application/json'];
@@ -111,8 +114,8 @@ PROMPT;
 
                 // If rate limited on primary model, try fallback model
                 if ($httpCode === 429) {
-                    Log::info('Trying fallback model gemini-2.0-flash-lite...');
-                    $fallbackUrl = str_replace('gemini-2.0-flash', 'gemini-2.0-flash-lite', $url);
+                    Log::info("Trying fallback model {$fallbackModel}...");
+                    $fallbackUrl = str_replace($primaryModel, $fallbackModel, $url);
                     $ch2 = curl_init($fallbackUrl);
                     curl_setopt_array($ch2, [
                         CURLOPT_RETURNTRANSFER => true,
