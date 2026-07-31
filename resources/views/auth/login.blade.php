@@ -178,7 +178,12 @@
 
             <div class="form-group">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" id="passwordInput" class="form-input" placeholder="••••••••" value="password" required>
+                <div style="position: relative;">
+                    <input type="password" name="password" id="passwordInput" class="form-input" placeholder="••••••••" required>
+                    <button type="button" id="togglePasswordBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-tertiary); padding: 4px;" title="Tampilkan/Sembunyikan Password">
+                        👁️
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn-submit">
@@ -190,10 +195,22 @@
     <script>
         function selectUser(email, el) {
             document.getElementById('emailInput').value = email;
-            document.getElementById('passwordInput').value = 'password';
+            document.getElementById('passwordInput').value = ''; // Kosongkan password agar diisi manual
+            document.getElementById('passwordInput').focus();
             document.querySelectorAll('.user-btn').forEach(btn => btn.classList.remove('active'));
             el.classList.add('active');
         }
+
+        document.getElementById('togglePasswordBtn').addEventListener('click', function() {
+            const pwd = document.getElementById('passwordInput');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                this.innerHTML = '👀'; 
+            } else {
+                pwd.type = 'password';
+                this.innerHTML = '👁️';
+            }
+        });
     </script>
 </body>
 </html>
