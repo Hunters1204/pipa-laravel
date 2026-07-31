@@ -145,7 +145,7 @@
             <tr>
                 <td style="color:var(--text-tertiary);">{{ $i + 1 }}</td>
                 <td style="font-family:var(--font-mono); color:var(--text-secondary);">
-                    {{ $op->input_date ? date('d/m/Y', strtotime($op->input_date)) : '-' }}
+                    {{ $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-' }}
                 </td>
                 <td>{{ $op->petugas_name }}</td>
                 <td style="color:var(--text-secondary);">{{ optional($op->block)->warehouse->name ?? '-' }}</td>

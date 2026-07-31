@@ -59,8 +59,8 @@
                             <div style="background:rgba(255,255,255,0.03); padding:5px; border-radius:6px;">
                                 <div
                                     style="font-size:0.72rem; font-weight:700; font-family:var(--font-mono); color:var(--text-secondary); padding-top:3px;">
-                                    {{ $item->input_date ? date('d/m/Y', strtotime($item->input_date)) : '-' }}</div>
-                                <div style="font-size:0.58rem; color:var(--text-tertiary); font-weight:700;">TGL INPUT</div>
+                                    {{ $item->created_at ? $item->created_at->format('d/m/Y H:i:s') : '-' }}</div>
+                                <div style="font-size:0.58rem; color:var(--text-tertiary); font-weight:700;">WAKTU INPUT</div>
                             </div>
                         </div>
                     </div>
@@ -340,8 +340,8 @@
                     style="background:rgba(255,255,255,0.03); padding:var(--space-sm); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
                     <div
                         style="font-size:0.78rem; font-weight:700; font-family:var(--font-mono); color:var(--text-secondary); padding-top:6px;">
-                        {{ date('d/m/Y') }}</div>
-                    <div style="font-size:0.6rem; color:var(--text-tertiary); font-weight:700;">TGL INPUT</div>
+                        {{ date('d/m/Y H:i:s') }}</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary); font-weight:700;">WAKTU INPUT</div>
                 </div>
             </div>
 

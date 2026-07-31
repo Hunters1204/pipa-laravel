@@ -4,8 +4,14 @@
 
 @section('content')
 <div class="card">
-    <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-tertiary); font-weight: 700; margin-bottom: var(--space-xs);">
-        Ringkasan Fisik
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+        <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-tertiary); font-weight: 700;">
+            Ringkasan Fisik
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 0.9rem;">🕒</span>
+            <span id="liveClock" style="font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; color: var(--accent-primary);">--:--:--</span>
+        </div>
     </div>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); margin-top: var(--space-md); text-align: center;">
         <div style="background: var(--bg-primary); padding: var(--space-md); border-radius: var(--radius-md);">
@@ -55,4 +61,19 @@
         </div>
     </a>
 @endforeach
+
+@push('scripts')
+<script>
+    function updateClock() {
+        const now = new Date();
+        const optionsDate = { day: '2-digit', month: 'short', year: 'numeric' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+        const timeStr = now.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':');
+        document.getElementById('liveClock').textContent = dateStr + ' ' + timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+@endpush
 @endsection
