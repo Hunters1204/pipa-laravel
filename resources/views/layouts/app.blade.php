@@ -208,7 +208,7 @@
     <div id="app">
         <header>
             <a href="{{ route('dashboard') }}" class="brand">
-                <img src="{{ asset('images/spindo-logo.png') }}" alt="Spindo Logo" style="height: 32px; border-radius: 4px; background: white; padding: 2px;">
+                <img src="https://www.spindo.co.id/assets/images/spindo-logo.png" alt="Spindo Logo" style="height: 32px; border-radius: 4px; background: white; padding: 2px;">
                 <div>
                     <span class="brand-title">Stock Opname</span>
                     <span class="brand-sub">PT SPINDO Tbk · Unit 7</span>

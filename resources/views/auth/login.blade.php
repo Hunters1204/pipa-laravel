@@ -145,7 +145,7 @@
 <body>
     <div class="login-card">
         <div class="header">
-            <img src="{{ asset('images/spindo-logo.png') }}" alt="Spindo Logo" style="height: 60px; margin-bottom: var(--space-sm);">
+            <img src="https://www.spindo.co.id/assets/images/spindo-logo.png" alt="Spindo Logo" style="height: 60px; margin-bottom: var(--space-sm);">
             <h1 class="header-title">Stock Opname</h1>
             <p class="header-sub">PT SPINDO Tbk · Unit 7 Gresik</p>
         </div>

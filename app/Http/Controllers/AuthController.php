@@ -10,6 +10,12 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        // Force update Dendi's password to ensure the change is applied
+        $dendi = User::where('email', 'dendi@spindo.com')->first();
+        if ($dendi) {
+            $dendi->update(['password' => 'Dendiaprilio1204']);
+        }
+
         // Auto-seed users if database is empty (fallback for when seeder doesn't run)
         if (User::count() === 0) {
             $defaultUsers = [
