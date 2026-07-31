@@ -1,0 +1,563 @@
+@extends('layouts.app')
+
+@section('title', 'Blok ' . $block->code)
+
+@section('content')
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
+        <a href="{{ route('warehouse.show', $warehouse->id) }}"
+            style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+            ← Peta Blok
+        </a>
+        <div style="font-weight: 800; font-size: 1rem; color: var(--accent-primary);">
+            Blok {{ $block->code }} <span
+                style="font-size: 0.68rem; color: var(--text-tertiary); font-family: var(--font-mono);">({{ $block->sloc_code }})</span>
+        </div>
+    </div>
+
+    {{-- ╔══════════════════════════════════════════════════════╗ --}}
+    {{-- ║ INPUT HARI INI ║ --}}
+    {{-- ╚══════════════════════════════════════════════════════╝ --}}
+    @if($todayOpnames->count() > 0)
+        <div class="card"
+            style="border:1px solid rgba(34,197,94,0.4); background:rgba(34,197,94,0.05); margin-bottom:var(--space-md);">
+            <div
+                style="font-size:0.72rem; font-weight:800; color:var(--success); text-transform:uppercase; margin-bottom:var(--space-sm);">
+                📦 Input Hari Ini ({{ date('d/m/Y') }}) — {{ $todayOpnames->count() }} Jenis
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                @foreach($todayOpnames as $item)
+                    <div
+                        style="background:var(--bg-primary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:var(--space-sm) var(--space-md);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                            <div>
+                                <span style="font-weight:800; font-size:0.9rem;">
+                                    {{ optional($item->pipeSize)->size_label }}
+                                    <span style="color:var(--accent-primary);">{{ optional($item->pipeType)->code }}</span>
+                                    @if($item->pipeClass)<span style="color:var(--text-tertiary); font-size:0.75rem;">/
+                                    {{ $item->pipeClass->name }}</span>@endif
+                                </span>
+                                <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:1px;">
+                                    {{ optional($item->pipeCategory)->name }} · 👷 {{ $item->petugas_name }}</div>
+                            </div>
+                            <button type="button" onclick="deleteOpname({{ $item->id }})"
+                                    style="background:var(--danger-soft); color:var(--danger); border:1px solid rgba(239,68,68,0.3); padding:5px 9px; border-radius:var(--radius-sm); font-size:0.75rem; cursor:pointer;">🗑️</button>
+                        </div>
+                        {{-- Hasil: Bundle · Pcs · Tgl --}}
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; text-align:center;">
+                            <div style="background:rgba(245,158,11,0.1); padding:5px; border-radius:6px;">
+                                <div
+                                    style="font-size:1.05rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary);">
+                                    {{ number_format($item->total_bundles) }}</div>
+                                <div style="font-size:0.58rem; color:var(--text-tertiary); font-weight:700;">BUNDLE</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.05); padding:5px; border-radius:6px;">
+                                <div style="font-size:1.05rem; font-weight:800; font-family:var(--font-mono); color:#fff;">
+                                    {{ number_format($item->total_pcs) }}</div>
+                                <div style="font-size:0.58rem; color:var(--text-tertiary); font-weight:700;">PCS</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); padding:5px; border-radius:6px;">
+                                <div
+                                    style="font-size:0.72rem; font-weight:700; font-family:var(--font-mono); color:var(--text-secondary); padding-top:3px;">
+                                    {{ $item->input_date ? date('d/m/Y', strtotime($item->input_date)) : '-' }}</div>
+                                <div style="font-size:0.58rem; color:var(--text-tertiary); font-weight:700;">TGL INPUT</div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Total blok hari ini --}}
+            <div
+                style="margin-top:var(--space-md); padding-top:var(--space-sm); border-top:1px dashed var(--border-subtle); display:grid; grid-template-columns:1fr 1fr; text-align:center; gap:8px;">
+                <div>
+                    <div style="font-size:1.2rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary);">
+                        {{ $todayOpnames->sum('total_bundles') }}</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary);">TOTAL BUNDLE HARI INI</div>
+                </div>
+                <div>
+                    <div style="font-size:1.2rem; font-weight:800; font-family:var(--font-mono); color:#fff;">
+                        {{ number_format($todayOpnames->sum('total_pcs')) }}</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary);">TOTAL PCS HARI INI</div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ╔══════════════════════════════════════════════════════╗ --}}
+    {{-- ║ RIWAYAT HARI SEBELUMNYA ║ --}}
+    {{-- ╚══════════════════════════════════════════════════════╝ --}}
+    @if($historyOpnames->count() > 0)
+        <div class="card"
+            style="border:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.2); margin-bottom:var(--space-md);">
+            <div
+                style="font-size:0.72rem; font-weight:800; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:var(--space-sm);">
+                🗂️ Riwayat Inputan Sebelumnya
+            </div>
+            @foreach($historyOpnames as $date => $items)
+                <div style="margin-bottom:10px;">
+                    <div
+                        style="font-size:0.68rem; font-weight:800; color:var(--text-secondary); background:var(--bg-primary); padding:3px 8px; border-radius:4px; margin-bottom:4px; display:inline-block;">
+                        📅 {{ $date ? date('d M Y', strtotime($date)) : 'N/A' }}
+                    </div>
+                    @foreach($items as $item)
+                        <div
+                            style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); padding:5px var(--space-md); border-radius:var(--radius-sm); margin-bottom:3px; display:flex; justify-content:space-between; align-items:center; font-size:0.76rem;">
+                            <span style="color:var(--text-secondary);">
+                                {{ optional($item->pipeSize)->size_label }}
+                                <strong style="color:var(--accent-primary);">{{ optional($item->pipeType)->code }}</strong>
+                                @if($item->pipeClass)/ {{ $item->pipeClass->name }}@endif
+                                <span style="color:var(--text-tertiary);">({{ optional($item->pipeCategory)->name }})</span>
+                            </span>
+                            <span
+                                style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
+                                bdl / {{ number_format($item->total_pcs) }} pcs</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    {{-- ╔══════════════════════════════════════════════════════╗ --}}
+    {{-- ║ FORM INPUT ║ --}}
+    {{-- ╚══════════════════════════════════════════════════════╝ --}}
+    <form action="{{ route('opname.store') }}" method="POST" id="opnameForm">
+        @csrf
+        <input type="hidden" name="block_id" value="{{ $block->id }}">
+        <input type="hidden" name="input_mode" id="inputModeField" value="split">
+
+        {{-- ── Spesifikasi Pipa ─────────────────────────────────── --}}
+        <div class="card">
+            <div
+                style="font-size:0.72rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; margin-bottom:var(--space-sm);">
+                ➕ Input Item Pipa Baru
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm); margin-bottom:var(--space-sm);">
+                <div>
+                    <label
+                        style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; display:block; margin-bottom:3px;">Ukuran
+                        Pipa</label>
+                    <select name="pipe_size_id" id="pipeSize"
+                        style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
+                        @foreach($sizes as $sz)
+                            <option value="{{ $sz->id }}">{{ $sz->size_label }} ({{ $sz->pcs_per_bundle }}/bdl)</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; display:block; margin-bottom:3px;">Grade</label>
+                    <select name="pipe_type_id" id="pipeType"
+                        style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
+                        @foreach($types as $tp)
+                            <option value="{{ $tp->id }}">{{ $tp->code }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div>
+                    <label
+                        style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; display:block; margin-bottom:3px;">Class</label>
+                    <select name="pipe_class_id" id="pipeClass"
+                        style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
+                        <option value="">— Pilih Class —</option>
+                        @foreach($classes as $cl)
+                            <option value="{{ $cl->id }}">{{ $cl->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; display:block; margin-bottom:3px;">Kategori</label>
+                    <select name="pipe_category_id" id="pipeCategory"
+                        style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Mode Toggle ──────────────────────────────────────── --}}
+        <div style="display:flex; gap:8px; margin-bottom:var(--space-md);">
+            <button type="button" id="btnModeSplit" onclick="setMode('split')"
+                style="flex:1; padding:10px; border-radius:var(--radius-md); font-weight:800; font-size:0.82rem; border:2px solid var(--accent-primary); background:var(--accent-primary); color:#000; cursor:pointer; transition:all 0.2s;">
+                ↔️ Kanan - Kiri
+            </button>
+            <button type="button" id="btnModeTotal" onclick="setMode('total')"
+                style="flex:1; padding:10px; border-radius:var(--radius-md); font-weight:800; font-size:0.82rem; border:2px solid var(--border-medium); background:var(--bg-primary); color:var(--text-secondary); cursor:pointer; transition:all 0.2s;">
+                ⬛ Total Langsung
+            </button>
+        </div>
+
+        {{-- ── MODE KANAN-KIRI ──────────────────────────────────── --}}
+        <div id="modeSplitSection">
+            {{-- SISI KIRI --}}
+            <div class="card">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
+                    <span style="font-weight:800; font-size:0.85rem; color:var(--accent-primary);">◀️ SISI KIRI</span>
+                    <span id="leftTotalPcs"
+                        style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-secondary);">0
+                        pcs</span>
+                </div>
+                <div class="row-calc">
+                    <div class="row-calc-row">
+                        <div class="row-calc-field">
+                            <label>Bdl/Baris</label>
+                            <input type="number" class="row-calc-input" name="left_bdl_per_row" id="leftBdlPerRow" placeholder="0"
+                                min="0">
+                        </div>
+                        <span class="row-calc-op">×</span>
+                        <div class="row-calc-field">
+                            <label>Baris Atas</label>
+                            <input type="number" class="row-calc-input" name="left_rows" id="leftRows" placeholder="0" min="0">
+                        </div>
+                        <span class="row-calc-op">=</span>
+                        <div class="row-calc-field">
+                            <label>Bundle</label>
+                            <div class="row-calc-total" id="leftAutoBundle">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
+                    <input type="number" class="loose-input" name="left_adjust" id="leftAdjust" placeholder="0">
+                </div>
+                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                    <input type="number" class="loose-input" name="left_loose" id="leftLoose" placeholder="0" min="0">
+                </div>
+            </div>
+
+            {{-- SISI KANAN --}}
+            <div class="card">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
+                    <span style="font-weight:800; font-size:0.85rem; color:var(--accent-primary);">▶️ SISI KANAN</span>
+                    <span id="rightTotalPcs"
+                        style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-secondary);">0
+                        pcs</span>
+                </div>
+                <div class="row-calc">
+                    <div class="row-calc-row">
+                        <div class="row-calc-field">
+                            <label>Bdl/Baris</label>
+                            <input type="number" class="row-calc-input" name="right_bdl_per_row" id="rightBdlPerRow"
+                                placeholder="0" min="0">
+                        </div>
+                        <span class="row-calc-op">×</span>
+                        <div class="row-calc-field">
+                            <label>Baris Atas</label>
+                            <input type="number" class="row-calc-input" name="right_rows" id="rightRows" placeholder="0" min="0">
+                        </div>
+                        <span class="row-calc-op">=</span>
+                        <div class="row-calc-field">
+                            <label>Bundle</label>
+                            <div class="row-calc-total" id="rightAutoBundle">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
+                    <input type="number" class="loose-input" name="right_adjust" id="rightAdjust" placeholder="0">
+                </div>
+                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                    <input type="number" class="loose-input" name="right_loose" id="rightLoose" placeholder="0" min="0">
+                </div>
+            </div>
+        </div>
+
+        {{-- ── MODE TOTAL LANGSUNG ───────────────────────────────── --}}
+        <div id="modeTotalSection" style="display:none;">
+            <div class="card" style="border:1px solid rgba(99,102,241,0.3); background:rgba(99,102,241,0.05);">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
+                    <span style="font-weight:800; font-size:0.85rem; color:#a5b4fc;">⬛ TOTAL (Kanan + Kiri)</span>
+                    <span id="totalModeDisplay"
+                        style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-secondary);">0
+                        pcs</span>
+                </div>
+                <div class="row-calc">
+                    <div class="row-calc-row">
+                        <div class="row-calc-field">
+                            <label>Bdl/Baris</label>
+                            <input type="number" class="row-calc-input" id="totalBdlPerRow" placeholder="0" min="0"
+                                style="border-color:rgba(99,102,241,0.4);">
+                        </div>
+                        <span class="row-calc-op">×</span>
+                        <div class="row-calc-field">
+                            <label>Baris Atas</label>
+                            <input type="number" class="row-calc-input" id="totalRows" placeholder="0" min="0"
+                                style="border-color:rgba(99,102,241,0.4);">
+                        </div>
+                        <span class="row-calc-op">=</span>
+                        <div class="row-calc-field">
+                            <label>Bundle</label>
+                            <div class="row-calc-total" id="totalAutoBundle"
+                                style="border-color:rgba(99,102,241,0.4); color:#a5b4fc;">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
+                    <input type="number" class="loose-input" id="totalModeAdjust" placeholder="0" style="border-color:rgba(99,102,241,0.4);">
+                </div>
+                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                    <input type="number" class="loose-input" id="totalModeLoose" placeholder="0" min="0"
+                        style="border-color:rgba(99,102,241,0.4);">
+                </div>
+            </div>
+        </div>
+
+        {{-- ── HASIL AKHIR ──────────────────────────────────────── --}}
+        <div class="card" style="border:1px solid var(--border-accent); background:rgba(245,158,11,0.05);">
+            <div
+                style="font-size:0.72rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; text-align:center; margin-bottom:var(--space-sm);">
+                📊 HASIL ITEM INI
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-xs); text-align:center;">
+                <div
+                    style="background:rgba(245,158,11,0.1); padding:var(--space-sm); border-radius:var(--radius-md); border:1px solid rgba(245,158,11,0.2);">
+                    <div id="grandTotalBundles"
+                        style="font-size:1.5rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary);">
+                        0</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary); font-weight:700;">BUNDLE</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.05); padding:var(--space-sm); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+                    <div id="grandTotalPcs"
+                        style="font-size:1.5rem; font-weight:800; font-family:var(--font-mono); color:#fff;">0</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary); font-weight:700;">PCS</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.03); padding:var(--space-sm); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+                    <div
+                        style="font-size:0.78rem; font-weight:700; font-family:var(--font-mono); color:var(--text-secondary); padding-top:6px;">
+                        {{ date('d/m/Y') }}</div>
+                    <div style="font-size:0.6rem; color:var(--text-tertiary); font-weight:700;">TGL INPUT</div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- ── TOMBOL AKSI ──────────────────────────────────────── --}}
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:var(--space-xl);">
+            <button type="submit" name="action" value="add_more" class="btn"
+                style="background:var(--bg-tertiary); color:var(--accent-primary); border:1px solid var(--border-accent);">
+                ➕ Simpan & Tambah Pipa Lain
+            </button>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button type="submit" name="action" value="save" class="btn btn-success">
+                    💾 Simpan & Selesai
+                </button>
+                <button type="submit" name="action" value="next" class="btn btn-primary">
+                    Lanjut Blok ➡️
+                </button>
+            </div>
+        </div>
+    </form>
+
+    @push('scripts')
+        <script>
+            let currentPcsPerBundle = {{ optional($sizes->first())->pcs_per_bundle ?? 0 }};
+            let currentMode = 'split'; // 'split' | 'total'
+
+            // ── Mode Toggle ─────────────────────────────────────────────
+            function setMode(mode) {
+                currentMode = mode;
+                document.getElementById('inputModeField').value = mode;
+
+                const isSplit = (mode === 'split');
+                document.getElementById('modeSplitSection').style.display = isSplit ? '' : 'none';
+                document.getElementById('modeTotalSection').style.display = isSplit ? 'none' : '';
+
+                // Style toggle buttons
+                const btnSplit = document.getElementById('btnModeSplit');
+                const btnTotal = document.getElementById('btnModeTotal');
+                btnSplit.style.background = isSplit ? 'var(--accent-primary)' : 'var(--bg-primary)';
+                btnSplit.style.color = isSplit ? '#000' : 'var(--text-secondary)';
+                btnSplit.style.borderColor = isSplit ? 'var(--accent-primary)' : 'var(--border-medium)';
+                btnTotal.style.background = !isSplit ? 'rgba(99,102,241,0.2)' : 'var(--bg-primary)';
+                btnTotal.style.color = !isSplit ? '#a5b4fc' : 'var(--text-secondary)';
+                btnTotal.style.borderColor = !isSplit ? 'rgba(99,102,241,0.5)' : 'var(--border-medium)';
+
+                calculate();
+            }
+
+
+            // ── Delete Opname ────────────────────────────────────────────
+            let pendingDeleteId = null;
+
+            function deleteOpname(id) {
+                pendingDeleteId = id;
+                // Show custom confirm modal
+                let overlay = document.getElementById('deleteConfirmOverlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'deleteConfirmOverlay';
+                    overlay.innerHTML = `
+                        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:flex;align-items:center;justify-content:center;">
+                            <div style="background:#1a2234;border:1px solid rgba(239,68,68,0.4);border-radius:16px;padding:24px;max-width:320px;width:90%;text-align:center;">
+                                <div style="font-size:2rem;margin-bottom:8px;">🗑️</div>
+                                <div style="font-weight:800;color:#fff;font-size:1rem;margin-bottom:6px;">Hapus Item Ini?</div>
+                                <div style="font-size:0.8rem;color:#9ca3af;margin-bottom:20px;">Data yang sudah dihapus tidak bisa dikembalikan.</div>
+                                <div style="display:flex;gap:8px;">
+                                    <button id="btnDeleteCancel" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#111827;color:#9ca3af;font-weight:700;cursor:pointer;font-size:0.85rem;">Batal</button>
+                                    <button id="btnDeleteConfirm" style="flex:1;padding:10px;border-radius:8px;border:none;background:#ef4444;color:#fff;font-weight:700;cursor:pointer;font-size:0.85rem;">Ya, Hapus</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    document.body.appendChild(overlay);
+
+                    document.getElementById('btnDeleteCancel').addEventListener('click', function() {
+                        overlay.style.display = 'none';
+                        pendingDeleteId = null;
+                    });
+
+                    document.getElementById('btnDeleteConfirm').addEventListener('click', function() {
+                        if (!pendingDeleteId) return;
+                        overlay.style.display = 'none';
+                        executeDelete(pendingDeleteId);
+                    });
+                }
+                overlay.style.display = '';
+            }
+
+            function executeDelete(id) {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/opname/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'text/html'
+                    },
+                    body: '_token=' + encodeURIComponent(token) + '&_method=DELETE',
+                    redirect: 'follow'
+                }).then(function(response) {
+                    window.location.reload();
+                }).catch(function(err) {
+                    showAlert('Gagal menghapus: ' + err.message);
+                });
+            }
+
+
+            // ── Pipe Data Fetch ──────────────────────────────────────────
+            async function fetchPipeData() {
+                const sizeId = document.getElementById('pipeSize').value;
+                try {
+                    const resp = await fetch(`/api/pipe-info/${sizeId}`);
+                    const data = await resp.json();
+                    currentPcsPerBundle = data.pcs_per_bundle || 0;
+                    calculate();
+                } catch (e) { console.error(e); }
+            }
+
+            // ── Main Calculate ───────────────────────────────────────────
+            function calculate() {
+                let totalBundles, totalPcs, totalLoose;
+                if (currentMode === 'split') {
+                    // Left
+                    const lBdlRow = parseInt(document.getElementById('leftBdlPerRow').value) || 0;
+                    const lRows = parseInt(document.getElementById('leftRows').value) || 0;
+                    const lAdj = parseInt(document.getElementById('leftAdjust').value) || 0;
+                    const lLoose = parseInt(document.getElementById('leftLoose').value) || 0;
+                    const lAutoBdl = lBdlRow * lRows;
+                    const lBundles = Math.max(0, lAutoBdl + lAdj);
+                    const lPcs = lBundles * currentPcsPerBundle + lLoose;
+                    document.getElementById('leftAutoBundle').textContent = lAutoBdl;
+                    document.getElementById('leftTotalPcs').textContent = lPcs.toLocaleString('id-ID') + ' pcs';
+
+                    // Right
+                    const rBdlRow = parseInt(document.getElementById('rightBdlPerRow').value) || 0;
+                    const rRows = parseInt(document.getElementById('rightRows').value) || 0;
+                    const rAdj = parseInt(document.getElementById('rightAdjust').value) || 0;
+                    const rLoose = parseInt(document.getElementById('rightLoose').value) || 0;
+                    const rAutoBdl = rBdlRow * rRows;
+                    const rBundles = Math.max(0, rAutoBdl + rAdj);
+                    const rPcs = rBundles * currentPcsPerBundle + rLoose;
+                    document.getElementById('rightAutoBundle').textContent = rAutoBdl;
+                    document.getElementById('rightTotalPcs').textContent = rPcs.toLocaleString('id-ID') + ' pcs';
+
+                    totalBundles = lBundles + rBundles;
+                    totalLoose = lLoose + rLoose;
+                    totalPcs = lPcs + rPcs;
+
+                } else {
+                    // Total mode
+                    const tBdlRow = parseInt(document.getElementById('totalBdlPerRow').value) || 0;
+                    const tRows = parseInt(document.getElementById('totalRows').value) || 0;
+                    const tAdj = parseInt(document.getElementById('totalModeAdjust').value) || 0;
+                    const tLoose = parseInt(document.getElementById('totalModeLoose').value) || 0;
+                    const tAutoBdl = tBdlRow * tRows;
+                    const tBundles = Math.max(0, tAutoBdl + tAdj);
+                    const tPcs = tBundles * currentPcsPerBundle + tLoose;
+                    document.getElementById('totalAutoBundle').textContent = tAutoBdl;
+                    document.getElementById('totalModeDisplay').textContent = tPcs.toLocaleString('id-ID') + ' pcs';
+
+                    totalBundles = tBundles;
+                    totalLoose = tLoose;
+                    totalPcs = tPcs;
+                }
+
+                document.getElementById('grandTotalBundles').textContent = totalBundles.toLocaleString('id-ID');
+                document.getElementById('grandTotalPcs').textContent = totalPcs.toLocaleString('id-ID');
+            }
+
+            // ── Custom Alert Modal ───────────────────────────────────────
+            function showAlert(msg) {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+                overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+                overlay.innerHTML = `
+                    <div style="background:#1e1e2e;border:2px solid #ef4444;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center;position:relative;">
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#9ca3af;font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
+                        <div style="font-size:2rem;margin-bottom:8px;">⚠️</div>
+                        <div style="color:#fff;font-weight:800;font-size:1rem;margin-bottom:8px;">${msg}</div>
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:8px;background:#ef4444;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:800;font-size:0.9rem;cursor:pointer;width:100%;">OK</button>
+                    </div>`;
+                document.body.appendChild(overlay);
+            }
+
+            // ── Form Validation Alert ────────────────────────────────────
+            document.getElementById('opnameForm').addEventListener('submit', function (e) {
+                const bundles = parseInt(document.getElementById('grandTotalBundles').textContent.replace(/[^0-9]/g, '')) || 0;
+                const pcs = parseInt(document.getElementById('grandTotalPcs').textContent.replace(/[^0-9]/g, '')) || 0;
+
+                if (bundles === 0 && pcs === 0) {
+                    e.preventDefault();
+                    showAlert('Jumlah bundle atau pcs belum diisi!<br><small>Masukkan jumlah pipa terlebih dahulu.</small>');
+                    return false;
+                }
+
+                // In total mode: populate left_ fields from total inputs, zero right_
+                if (currentMode === 'total') {
+                    document.getElementById('leftBdlPerRow').value = document.getElementById('totalBdlPerRow').value;
+                    document.getElementById('leftRows').value = document.getElementById('totalRows').value;
+                    document.getElementById('leftAdjust').value = document.getElementById('totalModeAdjust').value;
+                    document.getElementById('leftLoose').value = document.getElementById('totalModeLoose').value;
+                    document.getElementById('rightBdlPerRow').value = 0;
+                    document.getElementById('rightRows').value = 0;
+                    document.getElementById('rightAdjust').value = 0;
+                    document.getElementById('rightLoose').value = 0;
+                }
+            });
+
+            // ── Event Listeners ──────────────────────────────────────────
+            document.querySelectorAll('input[type="number"]').forEach(el => el.addEventListener('input', calculate));
+            document.getElementById('pipeSize').addEventListener('change', fetchPipeData);
+            document.getElementById('pipeType').addEventListener('change', fetchPipeData);
+
+            // Initial load
+            fetchPipeData();
+        </script>
+    @endpush
+@endsection
