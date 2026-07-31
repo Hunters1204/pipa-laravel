@@ -228,9 +228,20 @@
                     <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
                     <input type="number" class="loose-input" name="left_adjust" id="leftAdjust" placeholder="0">
                 </div>
-                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
-                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
-                    <input type="number" class="loose-input" name="left_loose" id="leftLoose" placeholder="0" min="0">
+                <div style="margin-top:8px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <input type="number" class="loose-input" name="left_loose" id="leftLoose" placeholder="0" min="0">
+                            <button type="button" onclick="openCamera('left')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
+                        </div>
+                    </div>
+                    <div id="leftAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
+                        <span id="leftAiText" style="color:#a5b4fc; font-weight:700;"></span>
+                    </div>
+                    <div id="leftAiPreview" style="display:none; margin-top:6px;">
+                        <img id="leftAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    </div>
                 </div>
             </div>
 
@@ -266,9 +277,20 @@
                     <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
                     <input type="number" class="loose-input" name="right_adjust" id="rightAdjust" placeholder="0">
                 </div>
-                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
-                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
-                    <input type="number" class="loose-input" name="right_loose" id="rightLoose" placeholder="0" min="0">
+                <div style="margin-top:8px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <input type="number" class="loose-input" name="right_loose" id="rightLoose" placeholder="0" min="0">
+                            <button type="button" onclick="openCamera('right')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
+                        </div>
+                    </div>
+                    <div id="rightAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
+                        <span id="rightAiText" style="color:#a5b4fc; font-weight:700;"></span>
+                    </div>
+                    <div id="rightAiPreview" style="display:none; margin-top:6px;">
+                        <img id="rightAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,10 +330,20 @@
                     <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
                     <input type="number" class="loose-input" id="totalModeAdjust" placeholder="0" style="border-color:rgba(99,102,241,0.4);">
                 </div>
-                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;">
-                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
-                    <input type="number" class="loose-input" id="totalModeLoose" placeholder="0" min="0"
-                        style="border-color:rgba(99,102,241,0.4);">
+                <div style="margin-top:8px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <input type="number" class="loose-input" id="totalModeLoose" placeholder="0" min="0" style="border-color:rgba(99,102,241,0.4);">
+                            <button type="button" onclick="openCamera('total')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
+                        </div>
+                    </div>
+                    <div id="totalAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
+                        <span id="totalAiText" style="color:#a5b4fc; font-weight:700;"></span>
+                    </div>
+                    <div id="totalAiPreview" style="display:none; margin-top:6px;">
+                        <img id="totalAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    </div>
                 </div>
             </div>
         </div>
@@ -558,6 +590,109 @@
 
             // Initial load
             fetchPipeData();
+
+            // ── AI Pipe Counter ──────────────────────────────────────────
+            function openCamera(side) {
+                // Create a temporary file input to open the camera
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.capture = 'environment'; // rear camera
+                input.style.display = 'none';
+                document.body.appendChild(input);
+
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        const base64 = ev.target.result;
+
+                        // Show preview image
+                        const previewDiv = document.getElementById(side + 'AiPreview');
+                        const previewImg = document.getElementById(side + 'AiImg');
+                        if (previewDiv && previewImg) {
+                            previewImg.src = base64;
+                            previewDiv.style.display = 'block';
+                        }
+
+                        // Show loading state
+                        const resultDiv = document.getElementById(side + 'AiResult');
+                        const resultText = document.getElementById(side + 'AiText');
+                        resultDiv.style.display = 'block';
+                        resultText.innerHTML = '⏳ Menghitung pipa... (AI sedang menganalisis foto)';
+
+                        // Send to AI
+                        countPipesWithAI(base64, side);
+                    };
+                    reader.readAsDataURL(file);
+
+                    // Cleanup
+                    document.body.removeChild(input);
+                });
+
+                input.click();
+            }
+
+            async function countPipesWithAI(base64Image, side) {
+                const resultDiv = document.getElementById(side + 'AiResult');
+                const resultText = document.getElementById(side + 'AiText');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                try {
+                    const resp = await fetch('/api/count-pipes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ image: base64Image }),
+                    });
+
+                    const data = await resp.json();
+
+                    if (data.success) {
+                        // Determine the correct input field
+                        let inputField;
+                        if (side === 'left') inputField = document.getElementById('leftLoose');
+                        else if (side === 'right') inputField = document.getElementById('rightLoose');
+                        else inputField = document.getElementById('totalModeLoose');
+
+                        // Auto-fill the count
+                        inputField.value = data.count;
+
+                        // Confidence badge colors
+                        const confColors = {
+                            high: '#22c55e',
+                            medium: '#f59e0b',
+                            low: '#ef4444'
+                        };
+                        const confLabels = {
+                            high: 'Tinggi',
+                            medium: 'Sedang',
+                            low: 'Rendah'
+                        };
+                        const confColor = confColors[data.confidence] || '#f59e0b';
+                        const confLabel = confLabels[data.confidence] || data.confidence;
+
+                        resultText.innerHTML = `🤖 AI: <strong>${data.count} pcs</strong> ` +
+                            `<span style="background:${confColor}; color:#000; padding:1px 6px; border-radius:4px; font-size:0.65rem; font-weight:800;">Akurasi ${confLabel}</span>` +
+                            (data.notes ? `<br><span style="color:var(--text-tertiary); font-size:0.65rem;">${data.notes}</span>` : '');
+
+                        // Trigger recalculation
+                        calculate();
+                    } else {
+                        resultText.innerHTML = `❌ ${data.error || 'Gagal menganalisis foto.'}`;
+                        resultText.style.color = '#ef4444';
+                    }
+                } catch (err) {
+                    resultText.innerHTML = `❌ Error: ${err.message}`;
+                    resultText.style.color = '#ef4444';
+                }
+            }
         </script>
     @endpush
 @endsection

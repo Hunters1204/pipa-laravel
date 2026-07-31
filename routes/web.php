@@ -7,6 +7,7 @@ use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\PipeDataController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PipeMasterController;
+use App\Http\Controllers\PipeCounterController;
 
 // Auth Routes (Guest)
 Route::middleware('guest')->group(function () {
@@ -47,4 +48,7 @@ Route::middleware('auth')->group(function () {
 
     // API endpoint for calculations
     Route::get('/api/pipe-info/{size}', [PipeDataController::class, 'getInfo'])->name('api.pipe-info');
+
+    // AI Pipe Counter
+    Route::post('/api/count-pipes', [PipeCounterController::class, 'count'])->name('api.count-pipes');
 });
