@@ -145,7 +145,7 @@
 <body>
     <div class="login-card">
         <div class="header">
-            <img src="https://www.spindo.co.id/assets/images/spindo-logo.png" alt="Spindo Logo" style="height: 60px; margin-bottom: var(--space-sm);">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiPjx0ZXh0IHg9IjEwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXN0eWxlPSJpdGFsaWMiIGZvbnQtc2l6ZT0iNDIiIGZpbGw9IiNEMzJGMkYiIGxldHRlci1zcGFjaW5nPSItMSI+U1BJTkRPPC90ZXh0Pjwvc3ZnPg==" alt="Spindo Logo" style="height: 40px; margin-bottom: var(--space-sm);">
             <h1 class="header-title">Stock Opname</h1>
             <p class="header-sub">PT SPINDO Tbk · Unit 7 Gresik</p>
         </div>

@@ -208,7 +208,7 @@
     <div id="app">
         <header>
             <a href="{{ route('dashboard') }}" class="brand">
-                <img src="https://www.spindo.co.id/assets/images/spindo-logo.png" alt="Spindo Logo" style="height: 32px; border-radius: 4px; background: white; padding: 2px;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiPjx0ZXh0IHg9IjEwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXN0eWxlPSJpdGFsaWMiIGZvbnQtc2l6ZT0iNDIiIGZpbGw9IiNEMzJGMkYiIGxldHRlci1zcGFjaW5nPSItMSI+U1BJTkRPPC90ZXh0Pjwvc3ZnPg==" alt="Spindo Logo" style="height: 28px; border-radius: 4px; background: white; padding: 2px;">
                 <div>
                     <span class="brand-title">Stock Opname</span>
                     <span class="brand-sub">PT SPINDO Tbk · Unit 7</span>
