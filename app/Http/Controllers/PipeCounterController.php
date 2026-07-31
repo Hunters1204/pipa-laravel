@@ -108,12 +108,41 @@ PROMPT;
 
             if ($httpCode !== 200) {
                 Log::error('Gemini API error: HTTP ' . $httpCode . ' — ' . $response);
+
+                // If rate limited on primary model, try fallback model
+                if ($httpCode === 429) {
+                    Log::info('Trying fallback model gemini-2.0-flash-lite...');
+                    $fallbackUrl = str_replace('gemini-2.0-flash', 'gemini-2.0-flash-lite', $url);
+                    $ch2 = curl_init($fallbackUrl);
+                    curl_setopt_array($ch2, [
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST           => true,
+                        CURLOPT_HTTPHEADER     => $headers,
+                        CURLOPT_POSTFIELDS     => json_encode($payload),
+                        CURLOPT_TIMEOUT        => 30,
+                        CURLOPT_SSL_VERIFYPEER => false,
+                    ]);
+                    $response = curl_exec($ch2);
+                    $httpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+
+                    if ($httpCode === 200) {
+                        // Fallback succeeded, continue processing below
+                        goto parseResponse;
+                    }
+
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Kuota API habis. Coba lagi dalam beberapa menit.',
+                    ], 429);
+                }
+
                 return response()->json([
                     'success' => false,
                     'error'   => 'API Error (HTTP ' . $httpCode . '). Periksa API key.',
                 ], $httpCode >= 400 ? $httpCode : 500);
             }
 
+            parseResponse:
             $result = json_decode($response, true);
 
             // Extract text from Gemini response
