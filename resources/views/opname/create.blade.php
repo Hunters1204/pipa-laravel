@@ -2,6 +2,23 @@
 
 @section('title', 'Blok ' . $block->code)
 
+@push('styles')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <style>
+        #cropModal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+            display: none; flex-direction: column; padding: 20px;
+        }
+        #cropContainer {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin-bottom: 20px;
+            background: #000; border-radius: 12px;
+        }
+        #cropImage { max-width: 100%; max-height: 100%; }
+        .crop-actions { display: flex; gap: 12px; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+    </style>
+@endpush
+
 @section('content')
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
         <a href="{{ route('warehouse.show', $warehouse->id) }}"
@@ -239,8 +256,9 @@
                     <div id="leftAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
                         <span id="leftAiText" style="color:#a5b4fc; font-weight:700;"></span>
                     </div>
-                    <div id="leftAiPreview" style="display:none; margin-top:6px;">
-                        <img id="leftAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    <div id="leftAiPreview" style="display:none; margin-top:6px; position:relative; width:100%;">
+                        <img id="leftAiImg" style="width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border-subtle);">
+                        <div id="leftAiBoxes" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
                     </div>
                 </div>
             </div>
@@ -288,8 +306,9 @@
                     <div id="rightAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
                         <span id="rightAiText" style="color:#a5b4fc; font-weight:700;"></span>
                     </div>
-                    <div id="rightAiPreview" style="display:none; margin-top:6px;">
-                        <img id="rightAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    <div id="rightAiPreview" style="display:none; margin-top:6px; position:relative; width:100%;">
+                        <img id="rightAiImg" style="width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border-subtle);">
+                        <div id="rightAiBoxes" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
                     </div>
                 </div>
             </div>
@@ -341,8 +360,9 @@
                     <div id="totalAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
                         <span id="totalAiText" style="color:#a5b4fc; font-weight:700;"></span>
                     </div>
-                    <div id="totalAiPreview" style="display:none; margin-top:6px;">
-                        <img id="totalAiImg" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--border-subtle);">
+                    <div id="totalAiPreview" style="display:none; margin-top:6px; position:relative; width:100%;">
+                        <img id="totalAiImg" style="width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border-subtle);">
+                        <div id="totalAiBoxes" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
                     </div>
                 </div>
             </div>
@@ -396,7 +416,21 @@
         </div>
     </form>
 
+    {{-- ── CROP MODAL ────────────────────────────────────────── --}}
+    <div id="cropModal">
+        <div style="color:#fff; font-weight:800; font-size:1.1rem; margin-bottom:4px; text-align:center;">Potong Area Pipa</div>
+        <div style="color:#9ca3af; font-size:0.75rem; text-align:center; margin-bottom:12px;">Crop hanya pada bagian pipa yang lepas / tidak di-bundle.</div>
+        <div id="cropContainer">
+            <img id="cropImage" src="">
+        </div>
+        <div class="crop-actions">
+            <button type="button" id="btnCancelCrop" class="btn" style="flex:1; background:#374151; color:#fff;">❌ Batal</button>
+            <button type="button" id="btnConfirmCrop" class="btn btn-primary" style="flex:2;">✂️ Selesai & Hitung</button>
+        </div>
+    </div>
+
     @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
         <script>
             let currentPcsPerBundle = {{ optional($sizes->first())->pcs_per_bundle ?? 0 }};
             let currentMode = 'split'; // 'split' | 'total'
@@ -592,12 +626,14 @@
             fetchPipeData();
 
             // ── AI Pipe Counter ──────────────────────────────────────────
+            let cropper = null;
+            let activeSide = null;
+
             function openCamera(side) {
-                // Create a temporary file input to open the camera
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.capture = 'environment'; // rear camera
+                input.capture = 'environment';
                 input.style.display = 'none';
                 document.body.appendChild(input);
 
@@ -605,41 +641,94 @@
                     const file = e.target.files[0];
                     if (!file) return;
 
-                    // Show preview
                     const reader = new FileReader();
                     reader.onload = function(ev) {
                         const base64 = ev.target.result;
-
-                        // Show preview image
-                        const previewDiv = document.getElementById(side + 'AiPreview');
-                        const previewImg = document.getElementById(side + 'AiImg');
-                        if (previewDiv && previewImg) {
-                            previewImg.src = base64;
-                            previewDiv.style.display = 'block';
-                        }
-
-                        // Show loading state
-                        const resultDiv = document.getElementById(side + 'AiResult');
-                        const resultText = document.getElementById(side + 'AiText');
-                        resultDiv.style.display = 'block';
-                        resultText.innerHTML = '⏳ Menghitung pipa... (AI sedang menganalisis foto)';
-
-                        // Send to AI
-                        countPipesWithAI(base64, side);
+                        
+                        activeSide = side;
+                        document.getElementById('cropImage').src = base64;
+                        document.getElementById('cropModal').style.display = 'flex';
+                        
+                        if (cropper) cropper.destroy();
+                        
+                        const imageElement = document.getElementById('cropImage');
+                        cropper = new Cropper(imageElement, {
+                            viewMode: 1,
+                            dragMode: 'crop',
+                            autoCropArea: 0.9,
+                            responsive: true,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false,
+                        });
                     };
                     reader.readAsDataURL(file);
-
-                    // Cleanup
                     document.body.removeChild(input);
                 });
 
                 input.click();
             }
 
+            document.getElementById('btnCancelCrop').addEventListener('click', function() {
+                document.getElementById('cropModal').style.display = 'none';
+                if (cropper) cropper.destroy();
+                cropper = null;
+                activeSide = null;
+            });
+
+            document.getElementById('btnConfirmCrop').addEventListener('click', function() {
+                if (!cropper || !activeSide) return;
+                
+                // Set button to loading state
+                const btn = document.getElementById('btnConfirmCrop');
+                const origText = btn.innerHTML;
+                btn.innerHTML = 'Memproses...';
+                btn.disabled = true;
+
+                // Use setTimeout to allow UI to update before heavy canvas operation
+                setTimeout(() => {
+                    const canvas = cropper.getCroppedCanvas();
+                    const croppedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.getElementById('cropModal').style.display = 'none';
+                    cropper.destroy();
+                    cropper = null;
+                    
+                    const side = activeSide;
+                    activeSide = null;
+
+                    // Reset button
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+
+                    const previewDiv = document.getElementById(side + 'AiPreview');
+                    const previewImg = document.getElementById(side + 'AiImg');
+                    if (previewDiv && previewImg) {
+                        previewImg.src = croppedBase64;
+                        previewDiv.style.display = 'block';
+                    }
+
+                    const resultDiv = document.getElementById(side + 'AiResult');
+                    const resultText = document.getElementById(side + 'AiText');
+                    resultDiv.style.display = 'block';
+                    resultText.innerHTML = '⏳ Menghitung pipa... (AI sedang menganalisis foto)';
+
+                    countPipesWithAI(croppedBase64, side);
+                }, 50);
+            });
+
             async function countPipesWithAI(base64Image, side) {
                 const resultDiv = document.getElementById(side + 'AiResult');
                 const resultText = document.getElementById(side + 'AiText');
+                const boxesContainer = document.getElementById(side + 'AiBoxes');
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                // Clear old boxes
+                if (boxesContainer) boxesContainer.innerHTML = '';
 
                 try {
                     const resp = await fetch('/api/count-pipes', {
@@ -681,6 +770,31 @@
                         resultText.innerHTML = `🤖 AI: <strong>${data.count} pcs</strong> ` +
                             `<span style="background:${confColor}; color:#000; padding:1px 6px; border-radius:4px; font-size:0.65rem; font-weight:800;">Akurasi ${confLabel}</span>` +
                             (data.notes ? `<br><span style="color:var(--text-tertiary); font-size:0.65rem;">${data.notes}</span>` : '');
+
+                        // Draw bounding boxes
+                        if (data.boxes && Array.isArray(data.boxes)) {
+                            data.boxes.forEach(box => {
+                                // box format: [ymin, xmin, ymax, xmax] scaled 0-1000
+                                if (box.length === 4) {
+                                    const ymin = box[0] / 10;
+                                    const xmin = box[1] / 10;
+                                    const ymax = box[2] / 10;
+                                    const xmax = box[3] / 10;
+                                    
+                                    const boxEl = document.createElement('div');
+                                    boxEl.style.position = 'absolute';
+                                    boxEl.style.top = ymin + '%';
+                                    boxEl.style.left = xmin + '%';
+                                    boxEl.style.height = (ymax - ymin) + '%';
+                                    boxEl.style.width = (xmax - xmin) + '%';
+                                    boxEl.style.border = '2px solid #22c55e';
+                                    boxEl.style.borderRadius = '50%'; // Make it a circle/ellipse for pipes!
+                                    boxEl.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                                    boxEl.style.boxShadow = '0 0 4px rgba(0,0,0,0.5)';
+                                    boxesContainer.appendChild(boxEl);
+                                }
+                            });
+                        }
 
                         // Trigger recalculation
                         calculate();

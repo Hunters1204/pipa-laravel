@@ -46,10 +46,22 @@ Tugas kamu:
 3. Jika ada pipa yang sebagian tersembunyi di belakang pipa lain, estimasikan jumlahnya.
 
 PENTING: Jawab HANYA dalam format JSON berikut, tanpa teks tambahan:
-{"count": <angka>, "confidence": "<high/medium/low>", "notes": "<catatan singkat>"}
+{
+  "count": <angka>,
+  "confidence": "<high/medium/low>",
+  "notes": "<catatan singkat>",
+  "boxes": [
+    [ymin, xmin, ymax, xmax], ...
+  ]
+}
+
+Aturan `boxes`:
+- Berisi array dari koordinat untuk tiap ujung pipa yang kamu temukan.
+- Format tiap kotak adalah [ymin, xmin, ymax, xmax] dengan skala 0 hingga 1000. (Misal [0, 0, 1000, 1000] adalah seluruh gambar).
+- Jumlah kotak di dalam `boxes` HARUS SAMA dengan angka di `count`.
 
 Contoh jawaban:
-{"count": 15, "confidence": "high", "notes": "15 ujung pipa terlihat jelas dari penampang depan"}
+{"count": 2, "confidence": "high", "notes": "2 pipa terlihat jelas", "boxes": [[100, 150, 200, 250], [300, 350, 400, 450]]}
 PROMPT;
 
         $payload = [
