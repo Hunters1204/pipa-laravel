@@ -15,7 +15,7 @@ class AuthController extends Controller
             $defaultUsers = [
                 ['name' => 'Akbar', 'email' => 'akbar@spindo.com', 'password' => 'password'],
                 ['name' => 'Reo',   'email' => 'reo@spindo.com',   'password' => 'password'],
-                ['name' => 'Dendi', 'email' => 'dendi@spindo.com', 'password' => 'password'],
+                ['name' => 'Dendi', 'email' => 'dendi@spindo.com', 'password' => 'Dendiaprilio1204'],
             ];
             foreach ($defaultUsers as $u) {
                 User::create($u);

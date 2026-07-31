@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
 
         User::updateOrCreate(
             ['email' => 'dendi@spindo.com'],
-            ['name' => 'Dendi', 'password' => 'password']
+            ['name' => 'Dendi', 'password' => 'Dendiaprilio1204']
         );
 
         // 1. Seed Warehouses & 36 Blocks each (A1-L3)
