@@ -17,10 +17,6 @@ class StockOpnameController extends Controller
 {
     public function create($warehouseId, $blockId)
     {
-        if (Auth::user()->warehouse_id && Auth::user()->warehouse_id != $warehouseId) {
-            abort(403, 'Akses ditolak. Anda hanya dapat mengisi opname di ' . optional(Auth::user()->warehouse)->name);
-        }
-
         $warehouse = Warehouse::findOrFail($warehouseId);
         $block = Block::where('warehouse_id', $warehouseId)
             ->where('code', $blockId)
@@ -69,11 +65,6 @@ class StockOpnameController extends Controller
             'pipe_type_id' => 'required|exists:pipe_types,id',
             'pipe_class_id' => 'nullable|exists:pipe_classes,id',
         ]);
-
-        $block = Block::findOrFail($request->block_id);
-        if (Auth::user()->warehouse_id && Auth::user()->warehouse_id != $block->warehouse_id) {
-            abort(403, 'Akses ditolak. Anda tidak dapat mengisi opname di gudang ini.');
-        }
 
         $size = PipeSize::findOrFail($request->pipe_size_id);
         $pcsPerBundle = $size->pcs_per_bundle;
@@ -157,11 +148,6 @@ class StockOpnameController extends Controller
     {
         $opname = StockOpname::findOrFail($id);
         $block = $opname->block;
-        
-        if (Auth::user()->warehouse_id && Auth::user()->warehouse_id != $block->warehouse_id) {
-            abort(403, 'Akses ditolak. Anda tidak dapat menghapus opname di gudang ini.');
-        }
-
         $opname->delete();
 
         return redirect()->route('opname.create', [
@@ -172,11 +158,7 @@ class StockOpnameController extends Controller
 
     public function report(Request $request)
     {
-        $warehouses = Warehouse::query();
-        if (Auth::user()->warehouse_id) {
-            $warehouses->where('id', Auth::user()->warehouse_id);
-        }
-        $warehouses = $warehouses->get();
+        $warehouses = Warehouse::all();
         $selectedWarehouse = $request->query('warehouse_id');
         $selectedDate = $request->query('opname_date');
 
@@ -188,12 +170,6 @@ class StockOpnameController extends Controller
             'pipeClass',
             'user'
         ])->latest();
-        
-        $userWarehouseId = Auth::user()->warehouse_id;
-        
-        if ($userWarehouseId) {
-            $selectedWarehouse = $userWarehouseId;
-        }
 
         if ($selectedWarehouse) {
             $query->whereHas('block', function ($q) use ($selectedWarehouse) {
@@ -242,12 +218,6 @@ class StockOpnameController extends Controller
             'pipeClass',
             'user'
         ])->latest();
-
-        $userWarehouseId = Auth::user()->warehouse_id;
-        
-        if ($userWarehouseId) {
-            $selectedWarehouse = $userWarehouseId;
-        }
 
         if ($selectedWarehouse) {
             $query->whereHas('block', function ($q) use ($selectedWarehouse) {

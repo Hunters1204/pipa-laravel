@@ -5,17 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Warehouse;
 use App\Models\Block;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class WarehouseController extends Controller
 {
-    public function show(Warehouse $warehouse)
+    public function show($id)
     {
-        if (Auth::user()->warehouse_id && Auth::user()->warehouse_id !== $warehouse->id) {
-            abort(403, 'Akses ditolak. Anda hanya dapat mengakses ' . optional(Auth::user()->warehouse)->name);
-        }
-
-        $warehouse->load(['blocks.stockOpnames']);
+        $warehouse = Warehouse::with(['blocks.stockOpnames'])->findOrFail($id);
 
         $stats = [
             'total' => $warehouse->blocks->count(),

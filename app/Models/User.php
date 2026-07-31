@@ -17,13 +17,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'warehouse_id',
     ];
-
-    public function warehouse()
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
 
     protected $hidden = [
         'password',
