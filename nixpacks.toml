@@ -1,11 +1,15 @@
 [phases.setup]
-nixPkgs = ["php83", "php83Extensions.pdo", "php83Extensions.pdo_sqlite", "php83Extensions.mbstring", "php83Extensions.xml", "php83Extensions.curl", "php83Extensions.zip", "php83Extensions.dom", "php83Extensions.fileinfo"]
+nixPkgs = ["php83", "php83Packages.composer", "php83Extensions.pdo", "php83Extensions.pdo_sqlite", "php83Extensions.mbstring", "php83Extensions.xml", "php83Extensions.curl", "php83Extensions.zip", "php83Extensions.dom", "php83Extensions.fileinfo", "nodejs", "npm"]
 
 [phases.install]
-cmds = ["composer install --no-dev --optimize-autoloader"]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm install"
+]
 
 [phases.build]
 cmds = [
+    "npm run build",
     "cp .env.example .env",
     "touch database/database.sqlite",
     "php artisan key:generate --force",
