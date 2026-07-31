@@ -21,10 +21,10 @@
             <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">PCS</div>
         </div>
         <div style="background: var(--bg-primary); padding: var(--space-md); border-radius: var(--radius-md);">
-            <div style="font-size: 1.1rem; font-weight: 800; font-family: var(--font-mono); color: var(--success);">
-                {{ number_format($totalWeight, 0, ',', '.') }}
+            <div style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-mono); color: var(--success);">
+                {{ number_format($totalOpnames) }}
             </div>
-            <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">TOTAL (KG)</div>
+            <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">OPNAME</div>
         </div>
     </div>
 </div>
