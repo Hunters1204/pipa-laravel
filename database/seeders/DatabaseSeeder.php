@@ -20,17 +20,17 @@ class DatabaseSeeder extends Seeder
         // 0. Seed 3 Petugas Users (Akbar, Reo, Dendi)
         User::updateOrCreate(
             ['email' => 'akbar@spindo.com'],
-            ['name' => 'Akbar', 'password' => Hash::make('password')]
+            ['name' => 'Akbar', 'password' => 'password']
         );
 
         User::updateOrCreate(
             ['email' => 'reo@spindo.com'],
-            ['name' => 'Reo', 'password' => Hash::make('password')]
+            ['name' => 'Reo', 'password' => 'password']
         );
 
         User::updateOrCreate(
             ['email' => 'dendi@spindo.com'],
-            ['name' => 'Dendi', 'password' => Hash::make('password')]
+            ['name' => 'Dendi', 'password' => 'password']
         );
 
         // 1. Seed Warehouses & 36 Blocks each (A1-L3)
