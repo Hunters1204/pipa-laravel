@@ -329,7 +329,7 @@ class StockOpnameController extends Controller
             echo "<body>";
             echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
             echo "<thead>";
-            echo "<tr><th colspan='18' style='background:#f59e0b; color:#fff; font-size:16px; padding:10px;'>" . $excelTitle . "</th></tr>";
+            echo "<tr><th colspan='15' style='background:#f59e0b; color:#fff; font-size:16px; padding:10px;'>" . $excelTitle . "</th></tr>";
             echo "<tr style='background:#fde68a; font-weight:bold;'>";
             echo "<th>No</th>";
             echo "<th>Tgl Input</th>";
@@ -343,9 +343,6 @@ class StockOpnameController extends Controller
             echo "<th>Grade</th>";
             echo "<th>Class</th>";
             echo "<th>Pcs/Bdl</th>";
-            echo "<th style='background:#fef3c7;'>Bdl/Baris</th>";
-            echo "<th style='background:#fef3c7;'>Baris</th>";
-            echo "<th style='background:#fef3c7;'>Adjust Bdl</th>";
             echo "<th>Total Bundle</th>";
             echo "<th>Pieces Lepas</th>";
             echo "<th>Total Pcs</th>";
@@ -373,9 +370,6 @@ class StockOpnameController extends Controller
                 echo "<td>" . ($row->pipeType->code ?? '') . "</td>";
                 echo "<td>" . ($row->pipeClass->name ?? '-') . "</td>";
                 echo "<td>" . ($row->pipeSize->pcs_per_bundle ?? 0) . "</td>";
-                echo "<td style='background:#fffbeb;'>" . $row->left_bdl_per_row . "</td>";
-                echo "<td style='background:#fffbeb;'>" . $row->left_rows . "</td>";
-                echo "<td style='background:#fffbeb;'>" . $row->left_adjust . "</td>";
                 echo "<td style='font-weight:bold;'>" . $row->total_bundles . "</td>";
                 echo "<td>" . $row->total_loose . "</td>";
                 echo "<td style='font-weight:bold;'>" . $row->total_pcs . "</td>";
@@ -385,7 +379,7 @@ class StockOpnameController extends Controller
             echo "</tbody>";
             echo "<tfoot>";
             echo "<tr style='background:#fde68a; font-weight:bold;'>";
-            echo "<td colspan='15' align='right'>TOTAL KESELURUHAN</td>";
+            echo "<td colspan='12' align='right'>TOTAL KESELURUHAN</td>";
             echo "<td>" . $totalBundles . "</td>";
             echo "<td></td>";
             echo "<td>" . $totalPcs . "</td>";
