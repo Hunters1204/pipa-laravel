@@ -61,6 +61,14 @@
         color: #fff;
         font-size: 0.85rem;
     }
+    .main-row { cursor: pointer; }
+    .main-row:hover { background: rgba(245, 158, 11, 0.08) !important; }
+    .detail-row td { padding: 0 !important; border-bottom: 1px solid var(--border-subtle); }
+    .detail-box { 
+        display: flex; justify-content: space-between; align-items: center; 
+        background: rgba(0,0,0,0.25); padding: 10px 16px; margin: 4px 10px 12px 10px;
+        border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05);
+    }
 </style>
 @endpush
 
@@ -134,15 +142,13 @@
                 <th>Grade</th>
                 <th>Class</th>
                 <th>Pcs/Bdl</th>
-                <th>Bdl Kiri</th>
-                <th>Bdl Kanan</th>
                 <th>Total Bdl</th>
                 <th>Total Pcs</th>
             </tr>
         </thead>
         <tbody>
             @foreach($opnames as $i => $op)
-            <tr>
+            <tr class="main-row" onclick="toggleDetail('detail-row-{{$i}}')" title="Klik untuk melihat detail perhitungan">
                 <td style="color:var(--text-tertiary);">{{ $i + 1 }}</td>
                 <td style="font-family:var(--font-mono); color:var(--text-secondary);">
                     {{ $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-' }}
@@ -164,15 +170,29 @@
                     @else <span style="color:var(--text-tertiary);">-</span> @endif
                 </td>
                 <td style="color:var(--text-secondary);">{{ optional($op->pipeSize)->pcs_per_bundle ?? 0 }}</td>
-                <td style="font-family:var(--font-mono);">{{ $op->left_bundles }}</td>
-                <td style="font-family:var(--font-mono);">{{ $op->right_bundles }}</td>
                 <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent-primary);">{{ number_format($op->total_bundles) }}</td>
                 <td style="font-family:var(--font-mono); font-weight:800;">{{ number_format($op->total_pcs) }}</td>
+            </tr>
+            <tr id="detail-row-{{$i}}" class="detail-row" style="display:none; background:rgba(255,255,255,0.01);">
+                <td colspan="13">
+                    <div class="detail-box">
+                        <div>
+                            <span style="color:var(--text-tertiary); font-size:0.65rem; text-transform:uppercase; display:block; margin-bottom:4px;">Detail Perhitungan Total Bundle</span>
+                            <span style="font-family:var(--font-mono); color:var(--accent-primary); font-size:0.85rem;">
+                                ({{ $op->left_bdl_per_row }} Bdl/Baris × {{ $op->left_rows }} Baris) + {{ $op->left_adjust }} Adjust = <span style="font-weight:800;">{{ $op->total_bundles }} Total Bdl</span>
+                            </span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="color:var(--text-tertiary); font-size:0.65rem; text-transform:uppercase; display:block; margin-bottom:4px;">Pieces Lepas</span>
+                            <span style="font-family:var(--font-mono); color:#fff; font-size:0.85rem; font-weight:800;">{{ $op->total_loose }} Pcs</span>
+                        </div>
+                    </div>
+                </td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
-                <td colspan="13" style="text-align:right; color:var(--accent-primary);">TOTAL</td>
+                <td colspan="11" style="text-align:right; color:var(--accent-primary);">TOTAL</td>
                 <td style="font-family:var(--font-mono); color:var(--accent-primary);">{{ number_format($summary['total_bundles']) }}</td>
                 <td style="font-family:var(--font-mono);">{{ number_format($summary['total_pcs']) }}</td>
             </tr>
@@ -186,3 +206,16 @@
     </div>
 @endif
 @endsection
+
+@push('scripts')
+<script>
+    function toggleDetail(id) {
+        const row = document.getElementById(id);
+        if (row.style.display === 'none' || row.style.display === '') {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+</script>
+@endpush

@@ -314,62 +314,75 @@ class StockOpnameController extends Controller
         }
 
         $opnames = $query->get();
-        $filename = "stock_opname_spindo_" . date('Y-m-d_His') . ".csv";
+        $filename = "Laporan_Stock_Opname_" . date('Ymd_His') . ".xls";
 
         $response = new StreamedResponse(function () use ($opnames) {
-            $handle = fopen('php://output', 'w');
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
+            echo "<html>";
+            echo "<head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head>";
+            echo "<body>";
+            echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
+            echo "<thead>";
+            echo "<tr><th colspan='15' style='background:#f59e0b; color:#fff; font-size:16px; padding:10px;'>LAPORAN STOCK OPNAME</th></tr>";
+            echo "<tr style='background:#fde68a; font-weight:bold;'>";
+            echo "<th>No</th>";
+            echo "<th>Tgl Input</th>";
+            echo "<th>Tgl Opname</th>";
+            echo "<th>Petugas</th>";
+            echo "<th>Gudang</th>";
+            echo "<th>Blok</th>";
+            echo "<th>SLOC</th>";
+            echo "<th>Kategori Pipa</th>";
+            echo "<th>Ukuran Pipa</th>";
+            echo "<th>Grade</th>";
+            echo "<th>Class</th>";
+            echo "<th>Pcs/Bdl</th>";
+            echo "<th>Total Bundle</th>";
+            echo "<th>Pieces Lepas</th>";
+            echo "<th>Total Pcs</th>";
+            echo "</tr>";
+            echo "</thead>";
+            echo "<tbody>";
 
-            fputcsv($handle, [
-                'Tanggal Input',
-                'Tgl Opname',
-                'Petugas',
-                'Gudang',
-                'Blok',
-                'SLOC',
-                'Kategori Pipa',
-                'Ukuran Pipa',
-                'Grade',
-                'Class',
-                'Pcs/Bdl',
-                'L Bdl/Baris',
-                'L Baris',
-                'L Bundle',
-                'R Bdl/Baris',
-                'R Baris',
-                'R Bundle',
-                'Total Bundle',
-                'Total Pcs (incl. loose)',
-            ]);
+            $totalBundles = 0;
+            $totalPcs = 0;
 
-            foreach ($opnames as $row) {
-                fputcsv($handle, [
-                    $row->input_date,
-                    $row->opname_date,
-                    $row->petugas_name,
-                    $row->block->warehouse->name ?? '',
-                    $row->block->code ?? '',
-                    $row->block->sloc_code ?? '',
-                    $row->pipeCategory->name ?? '',
-                    $row->pipeSize->size_label ?? '',
-                    $row->pipeType->code ?? '',
-                    $row->pipeClass->name ?? '-',
-                    $row->pipeSize->pcs_per_bundle ?? 0,
-                    $row->left_bdl_per_row,
-                    $row->left_rows,
-                    $row->left_bundles,
-                    $row->right_bdl_per_row,
-                    $row->right_rows,
-                    $row->right_bundles,
-                    $row->total_bundles,
-                    $row->total_pcs,
-                ]);
+            foreach ($opnames as $i => $row) {
+                $totalBundles += $row->total_bundles;
+                $totalPcs += $row->total_pcs;
+                
+                echo "<tr>";
+                echo "<td>" . ($i + 1) . "</td>";
+                echo "<td>" . $row->input_date . "</td>";
+                echo "<td>" . $row->opname_date . "</td>";
+                echo "<td>" . $row->petugas_name . "</td>";
+                echo "<td>" . ($row->block->warehouse->name ?? '') . "</td>";
+                echo "<td style=\"mso-number-format:'\@';\">" . ($row->block->code ?? '') . "</td>";
+                echo "<td style=\"mso-number-format:'\@';\">" . ($row->block->sloc_code ?? '') . "</td>";
+                echo "<td>" . ($row->pipeCategory->name ?? '') . "</td>";
+                echo "<td>" . ($row->pipeSize->size_label ?? '') . "</td>";
+                echo "<td>" . ($row->pipeType->code ?? '') . "</td>";
+                echo "<td>" . ($row->pipeClass->name ?? '-') . "</td>";
+                echo "<td>" . ($row->pipeSize->pcs_per_bundle ?? 0) . "</td>";
+                echo "<td style='font-weight:bold;'>" . $row->total_bundles . "</td>";
+                echo "<td>" . $row->total_loose . "</td>";
+                echo "<td style='font-weight:bold;'>" . $row->total_pcs . "</td>";
+                echo "</tr>";
             }
-
-            fclose($handle);
+            
+            echo "</tbody>";
+            echo "<tfoot>";
+            echo "<tr style='background:#fde68a; font-weight:bold;'>";
+            echo "<td colspan='12' align='right'>TOTAL KESELURUHAN</td>";
+            echo "<td>" . $totalBundles . "</td>";
+            echo "<td></td>";
+            echo "<td>" . $totalPcs . "</td>";
+            echo "</tr>";
+            echo "</tfoot>";
+            echo "</table>";
+            echo "</body></html>";
         });
 
-        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         return $response;
