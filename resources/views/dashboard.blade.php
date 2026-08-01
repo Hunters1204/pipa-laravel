@@ -5,8 +5,18 @@
 @section('content')
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
-        <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-tertiary); font-weight: 700;">
-            Ringkasan Fisik
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-tertiary); font-weight: 700;">
+                Ringkasan Fisik
+            </div>
+            <form id="filterForm" action="{{ route('dashboard') }}" method="GET" style="margin:0;">
+                <select name="filter" onchange="document.getElementById('filterForm').submit()" style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; outline: none;">
+                    <option value="today" {{ $filter === 'today' ? 'selected' : '' }} style="color:#000;">Hari Ini</option>
+                    <option value="yesterday" {{ $filter === 'yesterday' ? 'selected' : '' }} style="color:#000;">Kemarin</option>
+                    <option value="month" {{ $filter === 'month' ? 'selected' : '' }} style="color:#000;">Bulan Ini</option>
+                    <option value="all" {{ $filter === 'all' ? 'selected' : '' }} style="color:#000;">Semua Waktu</option>
+                </select>
+            </form>
         </div>
         <div style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 6px;">
             <span style="font-size: 0.9rem;">🕒</span>
@@ -43,7 +53,7 @@
     @php
         $st = $warehouseStats[$wh->id] ?? ['counted' => 0, 'total' => 36, 'pct' => 0];
     @endphp
-    <a href="{{ route('warehouse.show', $wh->id) }}" class="card" style="display: block; text-decoration: none; color: inherit; transition: transform 0.2s;">
+    <a href="{{ route('warehouse.show', ['warehouse' => $wh->id, 'filter' => $filter]) }}" class="card" style="display: block; text-decoration: none; color: inherit; transition: transform 0.2s;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
             <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary);">
                 🏭 {{ $wh->name }}
@@ -62,7 +72,48 @@
     </a>
 @endforeach
 
+<div style="margin-top: var(--space-xl); margin-bottom: var(--space-md);">
+    <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-md); font-weight: 700;">
+        📈 TREN OPNAME (7 HARI TERAKHIR)
+    </h3>
+    <div class="card" style="padding: var(--space-md);">
+        <canvas id="trendChart" height="200"></canvas>
+    </div>
+</div>
+
+<div style="margin-top: var(--space-xl); margin-bottom: var(--space-xl);">
+    <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-md); font-weight: 700;">
+        ⚡ AKTIVITAS TERBARU
+    </h3>
+    <div class="card" style="padding: var(--space-md);">
+        @if(count($recentActivities) > 0)
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                @foreach($recentActivities as $act)
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 4px;">
+                                👷 {{ $act->petugas_name ?? 'Tidak Diketahui' }}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                Menginput <strong style="color:var(--accent-primary);">{{ $act->total_bundles }} Bundle</strong> ({{ optional($act->pipeSize)->name ?? '-' }}) di {{ optional(optional($act->block)->warehouse)->name ?? '-' }} Blok {{ optional($act->block)->code ?? '-' }}
+                            </div>
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-mono); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; white-space: nowrap;">
+                            {{ $act->created_at->diffForHumans() }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div style="text-align: center; color: var(--text-tertiary); font-size: 0.8rem; padding: 20px 0;">
+                Belum ada aktivitas opname.
+            </div>
+        @endif
+    </div>
+</div>
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @php
     $bundleBreakdown = [];
     $pcsBreakdown = [];
@@ -235,6 +286,33 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
+
+    // Chart.js Initialization
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const chartData = @json($chartData);
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Total Bundle',
+                data: chartData.data,
+                backgroundColor: '#3b82f6',
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', precision: 0 } },
+                x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+            }
+        }
+    });
 </script>
 @endpush
 @endsection

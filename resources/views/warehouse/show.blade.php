@@ -4,11 +4,15 @@
 
 @section('content')
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
-    <a href="{{ route('dashboard') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+    <a href="{{ route('dashboard', ['filter' => $filter ?? 'today']) }}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
         ← Kembali
     </a>
     <div style="font-weight: 800; font-size: 1rem; color: var(--accent-primary);">
         {{ $warehouse->name }}
+        @php
+            $filterName = ['today' => 'Hari Ini', 'yesterday' => 'Kemarin', 'month' => 'Bulan Ini', 'all' => 'Semua Waktu'][$filter ?? 'today'] ?? 'Hari Ini';
+        @endphp
+        <span style="font-size: 0.7rem; color: var(--text-tertiary); font-weight: normal; margin-left: 6px;">({{ $filterName }})</span>
     </div>
 </div>
 
@@ -21,6 +25,21 @@
         <div style="width: {{ $stats['pct'] }}%; height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--success));"></div>
     </div>
 </div>
+
+@if(isset($emptyBlocks) && count($emptyBlocks) > 0)
+<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-md);">
+    <div style="font-size: 0.85rem; font-weight: 800; color: #ef4444; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+        <span>🚨</span> BLOK BELUM OPNAME
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        @foreach($emptyBlocks as $eb)
+            <span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 4px;">
+                {{ $eb }}
+            </span>
+        @endforeach
+    </div>
+</div>
+@endif
 
 <div style="display: flex; flex-direction: column; gap: var(--space-md);">
     @foreach($groupedBlocks as $letter => $blocks)

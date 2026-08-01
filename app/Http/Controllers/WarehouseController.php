@@ -8,10 +8,19 @@ use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $warehouse = Warehouse::with(['blocks.stockOpnames' => function($q) {
-            $q->whereDate('created_at', now()->toDateString());
+        $filter = $request->get('filter', 'today');
+
+        $warehouse = Warehouse::with(['blocks.stockOpnames' => function($q) use ($filter) {
+            if ($filter === 'today') {
+                $q->whereDate('created_at', now()->toDateString());
+            } elseif ($filter === 'yesterday') {
+                $q->whereDate('created_at', now()->subDay()->toDateString());
+            } elseif ($filter === 'month') {
+                $q->whereMonth('created_at', now()->month)
+                  ->whereYear('created_at', now()->year);
+            }
         }])->findOrFail($id);
 
         $stats = [
@@ -25,6 +34,9 @@ class WarehouseController extends Controller
             return substr($block->code, 0, 1);
         });
 
-        return view('warehouse.show', compact('warehouse', 'groupedBlocks', 'stats'));
+        // Find empty blocks (0 opnames)
+        $emptyBlocks = $warehouse->blocks->filter(fn($b) => $b->stockOpnames->count() === 0)->pluck('code');
+
+        return view('warehouse.show', compact('warehouse', 'groupedBlocks', 'stats', 'filter', 'emptyBlocks'));
     }
 }
