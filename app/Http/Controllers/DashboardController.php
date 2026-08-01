@@ -17,15 +17,16 @@ class DashboardController extends Controller
 
         $warehouses = Warehouse::withCount('blocks')->get();
         
-        $totalOpnames = StockOpname::count();
-        $totalBundles = StockOpname::sum('total_bundles');
-        $totalPcs = StockOpname::sum('total_pcs');
-        $totalWeight = StockOpname::sum('total_weight');
+        $today = now()->toDateString();
+        $totalOpnames = StockOpname::whereDate('created_at', $today)->count();
+        $totalBundles = StockOpname::whereDate('created_at', $today)->sum('total_bundles');
+        $totalPcs = StockOpname::whereDate('created_at', $today)->sum('total_pcs');
+        $totalWeight = StockOpname::whereDate('created_at', $today)->sum('total_weight');
 
         // Progress per warehouse
         $warehouseStats = [];
         foreach ($warehouses as $wh) {
-            $countedBlocks = StockOpname::whereHas('block', function ($q) use ($wh) {
+            $countedBlocks = StockOpname::whereDate('created_at', $today)->whereHas('block', function ($q) use ($wh) {
                 $q->where('warehouse_id', $wh->id);
             })->distinct('block_id')->count('block_id');
 

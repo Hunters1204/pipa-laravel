@@ -10,7 +10,9 @@ class WarehouseController extends Controller
 {
     public function show($id)
     {
-        $warehouse = Warehouse::with(['blocks.stockOpnames'])->findOrFail($id);
+        $warehouse = Warehouse::with(['blocks.stockOpnames' => function($q) {
+            $q->whereDate('created_at', now()->toDateString());
+        }])->findOrFail($id);
 
         $stats = [
             'total' => $warehouse->blocks->count(),
