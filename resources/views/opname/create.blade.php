@@ -700,6 +700,13 @@
                     resultText.style.color = '#ef4444';
                 }
             }
+            // Enforce strictly numeric input for calculation fields
+            document.querySelectorAll('.row-calc-input, .loose-input').forEach(input => {
+                input.setAttribute('inputmode', 'numeric');
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
         </script>
     @endpush
 @endsection
