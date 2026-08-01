@@ -244,7 +244,7 @@ class StockOpnameController extends Controller
     {
         $warehouses = Warehouse::all();
         $selectedWarehouse = $request->query('warehouse_id');
-        $selectedDate = $request->query('opname_date');
+        $selectedDate = $request->has('opname_date') ? $request->query('opname_date') : now()->toDateString();
 
         $query = StockOpname::with([
             'block.warehouse',
@@ -292,7 +292,7 @@ class StockOpnameController extends Controller
     public function export(Request $request)
     {
         $selectedWarehouse = $request->query('warehouse_id');
-        $selectedDate = $request->query('opname_date');
+        $selectedDate = $request->has('opname_date') ? $request->query('opname_date') : now()->toDateString();
         $warehouseName = '';
 
         if ($selectedWarehouse) {
