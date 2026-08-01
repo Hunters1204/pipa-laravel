@@ -22,12 +22,19 @@
 @section('content')
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
         <a href="{{ route('warehouse.show', $warehouse->id) }}"
-            style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+            style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600; flex: 1;">
             ← Peta Blok
         </a>
-        <div style="font-weight: 800; font-size: 1rem; color: var(--accent-primary);">
+        <div style="font-weight: 800; font-size: 1rem; color: var(--accent-primary); text-align: center; flex: 1; white-space: nowrap;">
             Blok {{ $block->code }} <span
                 style="font-size: 0.68rem; color: var(--text-tertiary); font-family: var(--font-mono);">({{ $block->sloc_code }})</span>
+        </div>
+        <div style="flex: 1; text-align: right;">
+            @if($historyOpnames->count() > 0)
+                <button type="button" onclick="document.getElementById('historyModal').style.display='flex'" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                    🕒 Histori
+                </button>
+            @endif
         </div>
     </div>
 
@@ -104,42 +111,45 @@
     @endif
 
     {{-- ╔══════════════════════════════════════════════════════╗ --}}
-    {{-- ║ RIWAYAT HARI SEBELUMNYA ║ --}}
+    {{-- ║ MODAL RIWAYAT HARI SEBELUMNYA ║ --}}
     {{-- ╚══════════════════════════════════════════════════════╝ --}}
     @if($historyOpnames->count() > 0)
-        <div class="card"
-            style="border:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.2); margin-bottom:var(--space-md);">
-            <div
-                style="font-size:0.72rem; font-weight:800; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:var(--space-sm);">
-                🗂️ Riwayat Inputan Sebelumnya
+    <div id="historyModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);">
+        <div style="background: #1e1e2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-height: 80vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-weight: 800; color: var(--text-primary); margin: 0; font-size: 1.1rem;">🗂️ Riwayat Inputan Sebelumnya</h3>
+                <button type="button" onclick="document.getElementById('historyModal').style.display='none'" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
             </div>
-            @foreach($historyOpnames as $date => $items)
-                <div style="margin-bottom:10px;">
-                    <div
-                        style="font-size:0.68rem; font-weight:800; color:var(--text-secondary); background:var(--bg-primary); padding:3px 8px; border-radius:4px; margin-bottom:4px; display:inline-block;">
-                        📅 {{ $date ? date('d M Y', strtotime($date)) : 'N/A' }}
-                    </div>
-                    @foreach($items as $item)
+            
+            <div style="overflow-y: auto; padding-right: 8px;">
+                @foreach($historyOpnames as $date => $items)
+                    <div style="margin-bottom:16px;">
                         <div
-                            style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); padding:5px var(--space-md); border-radius:var(--radius-sm); margin-bottom:3px; display:flex; justify-content:space-between; align-items:center; font-size:0.76rem;">
-                            <span style="color:var(--text-secondary);">
-                                {{ optional($item->pipeSize)->size_label }}
-                                <strong style="color:var(--accent-primary);">{{ optional($item->pipeType)->code }}</strong>
-                                @if($item->pipeClass)/ {{ $item->pipeClass->name }}@endif
-                                <span style="color:var(--text-tertiary);">({{ optional($item->pipeCategory)->name }})</span>
-                            </span>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span
-                                    style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
-                                    bdl / {{ number_format($item->total_pcs) }} pcs</span>
-                                <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem; padding:3px 6px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); background:rgba(245,158,11,0.1);" title="Edit">✏️</a>
-                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="color:#ef4444; border:1px solid rgba(239,68,68,0.4); padding:3px 6px; border-radius:var(--radius-sm); background:rgba(239,68,68,0.1); font-size:0.8rem; cursor:pointer;" title="Hapus">🗑️</button>
-                            </div>
+                            style="font-size:0.75rem; font-weight:800; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; margin-bottom:8px; display:inline-block; border: 1px solid rgba(255,255,255,0.05);">
+                            📅 {{ $date ? date('d M Y', strtotime($date)) : 'N/A' }}
                         </div>
-                    @endforeach
-                </div>
-            @endforeach
+                        @foreach($items as $item)
+                            <div
+                                style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px var(--space-md); border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+                                <span style="color:var(--text-secondary);">
+                                    {{ optional($item->pipeSize)->size_label }}
+                                    <strong style="color:var(--accent-primary);">{{ optional($item->pipeType)->code }}</strong>
+                                    @if($item->pipeClass)/ {{ $item->pipeClass->name }}@endif
+                                    <div style="color:var(--text-tertiary); font-size: 0.7rem; margin-top: 2px;">{{ optional($item->pipeCategory)->name }} · 👷 {{ $item->petugas_name }}</div>
+                                </span>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-family:var(--font-mono); color:#fff; font-weight:800;">
+                                        {{ $item->total_bundles }} <span style="font-size:0.65rem; color:var(--text-tertiary); font-weight:400;">bdl</span> / 
+                                        {{ number_format($item->total_pcs) }} <span style="font-size:0.65rem; color:var(--text-tertiary); font-weight:400;">pcs</span>
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
         </div>
+    </div>
     @endif
 
     {{-- ╔══════════════════════════════════════════════════════╗ --}}
