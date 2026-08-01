@@ -57,9 +57,11 @@
                                 <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:1px;">
                                     {{ optional($item->pipeCategory)->name }} · 👷 {{ $item->petugas_name }}</div>
                             </div>
-                            <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem; padding:4px 8px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); margin-right:4px;" title="Edit">✏️</a>
-                            <button type="button" onclick="deleteOpname({{ $item->id }})"
-                                    style="background:var(--danger-soft); color:var(--danger); border:1px solid rgba(239,68,68,0.3); padding:5px 9px; border-radius:var(--radius-sm); font-size:0.75rem; cursor:pointer;">🗑️</button>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.9rem; padding:4px 8px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); background:rgba(245,158,11,0.1); display:flex; align-items:center;" title="Edit">✏️</a>
+                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="color:#ef4444; border:1px solid rgba(239,68,68,0.4); padding:4px 8px; border-radius:var(--radius-sm); background:rgba(239,68,68,0.1); font-size:0.9rem; cursor:pointer; display:flex; align-items:center;" title="Hapus">🗑️</button>
+                            </div>
+                        </div>
                         {{-- Hasil: Bundle · Pcs · Tgl --}}
                         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; text-align:center;">
                             <div style="background:rgba(245,158,11,0.1); padding:5px; border-radius:6px;">
@@ -130,8 +132,8 @@
                                 <span
                                     style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
                                     bdl / {{ number_format($item->total_pcs) }} pcs</span>
-                                <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem;" title="Edit">✏️</a>
-                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="background:none; border:none; color:#ef4444; font-size:0.9rem; cursor:pointer;" title="Hapus">🗑️</button>
+                                <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem; padding:3px 6px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); background:rgba(245,158,11,0.1);" title="Edit">✏️</a>
+                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="color:#ef4444; border:1px solid rgba(239,68,68,0.4); padding:3px 6px; border-radius:var(--radius-sm); background:rgba(239,68,68,0.1); font-size:0.8rem; cursor:pointer;" title="Hapus">🗑️</button>
                             </div>
                         </div>
                     @endforeach
