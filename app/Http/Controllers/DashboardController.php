@@ -45,13 +45,25 @@ class DashboardController extends Controller
             ];
         }
 
+        $opnameUsers = [];
+        $todayOpnames = StockOpname::with('block.warehouse')->whereDate('created_at', $today)->get();
+        foreach($todayOpnames as $op) {
+            if (!$op->block || !$op->block->warehouse) continue;
+            $whName = $op->block->warehouse->name;
+            $user = $op->petugas_name ?: 'Tidak Diketahui';
+            if(!isset($opnameUsers[$whName])) $opnameUsers[$whName] = [];
+            if(!isset($opnameUsers[$whName][$user])) $opnameUsers[$whName][$user] = 0;
+            $opnameUsers[$whName][$user]++;
+        }
+
         return view('dashboard', compact(
             'warehouses',
             'totalOpnames',
             'totalBundles',
             'totalPcs',
             'totalWeight',
-            'warehouseStats'
+            'warehouseStats',
+            'opnameUsers'
         ));
     }
 }
