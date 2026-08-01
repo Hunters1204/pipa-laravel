@@ -169,7 +169,8 @@
                 <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;">
                     @foreach($existingSpecs as $spec)
                         <button type="button" 
-                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }})"
+                                class="quick-spec-btn"
+                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }}, this)"
                                 style="flex-shrink:0; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:var(--accent-primary); padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
                             {{ optional($spec->pipeSize)->size_label }} {{ optional($spec->pipeType)->code }} @if($spec->pipeClass) / {{ $spec->pipeClass->name }} @endif
                         </button>
@@ -411,12 +412,34 @@
 
 
             // ── Quick Select Spec ─────────────────────────────────────────
-            function applySpec(categoryId, sizeId, typeId, classId) {
+            function clearQuickSelect() {
+                document.querySelectorAll('.quick-spec-btn').forEach(el => {
+                    el.style.background = 'rgba(245,158,11,0.15)';
+                    el.style.color = 'var(--accent-primary)';
+                    el.style.border = '1px solid rgba(245,158,11,0.4)';
+                    if (el.dataset.originalText) {
+                        el.innerHTML = el.dataset.originalText;
+                    }
+                });
+            }
+
+            function applySpec(categoryId, sizeId, typeId, classId, btnElement) {
                 document.getElementById('pipeCategory').value = categoryId;
                 document.getElementById('pipeSize').value = sizeId;
                 document.getElementById('pipeType').value = typeId;
                 document.getElementById('pipeClass').value = classId || '';
                 
+                clearQuickSelect();
+                if (btnElement) {
+                    if (!btnElement.dataset.originalText) {
+                        btnElement.dataset.originalText = btnElement.innerHTML;
+                    }
+                    btnElement.style.background = 'var(--accent-primary)';
+                    btnElement.style.color = '#111827';
+                    btnElement.style.border = '1px solid var(--accent-primary)';
+                    btnElement.innerHTML = '✅ ' + btnElement.dataset.originalText.trim();
+                }
+
                 const card = document.getElementById('specCard');
                 if (card) {
                     card.style.background = 'rgba(245,158,11,0.15)';
@@ -488,6 +511,7 @@
             document.querySelectorAll('input[type="number"]').forEach(el => el.addEventListener('input', calculate));
             document.getElementById('pipeSize').addEventListener('change', fetchPipeData);
             document.getElementById('pipeType').addEventListener('change', fetchPipeData);
+            document.querySelectorAll('select').forEach(el => el.addEventListener('change', clearQuickSelect));
 
             // Initial load
             fetchPipeData();
