@@ -154,10 +154,32 @@
         <input type="hidden" name="input_mode" id="inputModeField" value="total">
 
         {{-- ── Spesifikasi Pipa ─────────────────────────────────── --}}
-        <div class="card">
+        <div class="card" id="specCard" style="transition: background 0.3s;">
             <div
                 style="font-size:0.72rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; margin-bottom:var(--space-sm);">
-                ➕ Input Item Pipa Baru
+                ➕ Spesifikasi Pipa
+            </div>
+
+            {{-- ── Quick Select Spesifikasi ─────────────────────────────────── --}}
+            @if(isset($existingSpecs) && $existingSpecs->count() > 0 && !isset($editOpname))
+            <div style="margin-bottom:var(--space-md); padding-bottom:10px; border-bottom:1px dashed var(--border-subtle);">
+                <div style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">
+                    ⚡ Pilih Cepat (Tersedia di blok ini):
+                </div>
+                <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;">
+                    @foreach($existingSpecs as $spec)
+                        <button type="button" 
+                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }})"
+                                style="flex-shrink:0; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:var(--accent-primary); padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
+                            {{ optional($spec->pipeSize)->size_label }} {{ optional($spec->pipeType)->code }} @if($spec->pipeClass) / {{ $spec->pipeClass->name }} @endif
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <div style="font-size:0.65rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">
+                Atau Input Manual:
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm); margin-bottom:var(--space-sm);">
@@ -387,6 +409,22 @@
                 });
             }
 
+
+            // ── Quick Select Spec ─────────────────────────────────────────
+            function applySpec(categoryId, sizeId, typeId, classId) {
+                document.getElementById('pipeCategory').value = categoryId;
+                document.getElementById('pipeSize').value = sizeId;
+                document.getElementById('pipeType').value = typeId;
+                document.getElementById('pipeClass').value = classId || '';
+                
+                const card = document.getElementById('specCard');
+                if (card) {
+                    card.style.background = 'rgba(245,158,11,0.15)';
+                    setTimeout(() => card.style.background = 'var(--bg-primary)', 300);
+                }
+
+                fetchPipeData();
+            }
 
             // ── Pipe Data Fetch ──────────────────────────────────────────
             async function fetchPipeData() {

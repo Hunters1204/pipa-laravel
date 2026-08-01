@@ -44,6 +44,12 @@ class StockOpnameController extends Controller
         $types = PipeType::all();   // G-A, G-B
         $classes = PipeClass::all();  // SCH40, L, M, BSA, MED
 
+        // Get unique pipe specifications that have been inputted in this block
+        $allOpnames = $todayOpnames->merge($historyOpnames->flatten());
+        $existingSpecs = $allOpnames->unique(function ($item) {
+            return $item->pipe_category_id . '-' . $item->pipe_size_id . '-' . $item->pipe_type_id . '-' . $item->pipe_class_id;
+        })->take(8); // Show up to 8 unique specs
+
         return view('opname.create', compact(
             'warehouse',
             'block',
@@ -53,6 +59,7 @@ class StockOpnameController extends Controller
             'sizes',
             'types',
             'classes',
+            'existingSpecs'
         ));
     }
 
