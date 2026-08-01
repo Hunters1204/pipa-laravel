@@ -20,11 +20,11 @@
             </div>
             <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">BUNDLE</div>
         </div>
-        <div style="background: var(--bg-primary); padding: var(--space-md); border-radius: var(--radius-md);">
+        <div style="background: var(--bg-primary); padding: var(--space-md); border-radius: var(--radius-md); cursor: pointer;" onclick="showPcsBreakdown()" title="Lihat detail Pcs per Gudang">
             <div style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary);">
                 {{ number_format($totalPcs) }}
             </div>
-            <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">PCS</div>
+            <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 600;">PCS 🔍</div>
         </div>
         <div style="background: var(--bg-primary); padding: var(--space-md); border-radius: var(--radius-md);">
             <div style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-mono); color: var(--success);">
@@ -63,7 +63,56 @@
 @endforeach
 
 @push('scripts')
+@php
+    $pcsBreakdown = [];
+    foreach($warehouseStats as $id => $stat) {
+        if(isset($stat['name'])) {
+            $pcsBreakdown[] = [
+                'name' => $stat['name'],
+                'pcs' => $stat['total_pcs']
+            ];
+        }
+    }
+@endphp
 <script>
+    const pcsData = @json($pcsBreakdown);
+    function showPcsBreakdown() {
+        if (!pcsData || pcsData.length === 0) return;
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px; backdrop-filter:blur(4px);';
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+        
+        let listHtml = '';
+        let total = 0;
+        pcsData.forEach(item => {
+            listHtml += `
+                <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="color:var(--text-secondary);font-weight:700;">🏭 ${item.name}</div>
+                    <div style="font-family:var(--font-mono); font-weight:800; color:#fff;">${new Intl.NumberFormat('en-US').format(item.pcs)} <span style="font-size:0.7rem;font-weight:400;color:var(--text-tertiary);">PCS</span></div>
+                </div>
+            `;
+            total += item.pcs;
+        });
+
+        const content = `
+            <div style="background:#1e1e2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;max-width:400px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3 style="font-weight:800;color:var(--text-primary);margin:0;font-size:1.1rem;">📊 Rincian Pcs per Gudang</h3>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05); margin-bottom:16px;">
+                    ${listHtml}
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:12px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:8px;">
+                    <div style="color:var(--accent-primary); font-weight:800; font-size:0.8rem; text-transform:uppercase;">Total Keseluruhan</div>
+                    <div style="font-family:var(--font-mono); font-weight:800; color:var(--accent-primary);">${new Intl.NumberFormat('en-US').format(total)} <span style="font-size:0.7rem;font-weight:400;">PCS</span></div>
+                </div>
+            </div>
+        `;
+        overlay.innerHTML = content;
+        document.body.appendChild(overlay);
+    }
+
     function updateClock() {
         const now = new Date();
         const optionsDate = { day: '2-digit', month: 'short', year: 'numeric' };

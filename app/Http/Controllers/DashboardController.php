@@ -29,13 +29,19 @@ class DashboardController extends Controller
             $countedBlocks = StockOpname::whereDate('created_at', $today)->whereHas('block', function ($q) use ($wh) {
                 $q->where('warehouse_id', $wh->id);
             })->distinct('block_id')->count('block_id');
+            
+            $totalPcsWh = StockOpname::whereDate('created_at', $today)->whereHas('block', function ($q) use ($wh) {
+                $q->where('warehouse_id', $wh->id);
+            })->sum('total_pcs');
 
             $pct = $wh->blocks_count > 0 ? round(($countedBlocks / $wh->blocks_count) * 100) : 0;
 
             $warehouseStats[$wh->id] = [
+                'name' => $wh->name,
                 'counted' => $countedBlocks,
                 'total' => $wh->blocks_count,
                 'pct' => $pct,
+                'total_pcs' => $totalPcsWh,
             ];
         }
 
