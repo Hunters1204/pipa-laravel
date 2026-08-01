@@ -57,9 +57,9 @@
                                 <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:1px;">
                                     {{ optional($item->pipeCategory)->name }} · 👷 {{ $item->petugas_name }}</div>
                             </div>
+                            <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem; padding:4px 8px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); margin-right:4px;" title="Edit">✏️</a>
                             <button type="button" onclick="deleteOpname({{ $item->id }})"
                                     style="background:var(--danger-soft); color:var(--danger); border:1px solid rgba(239,68,68,0.3); padding:5px 9px; border-radius:var(--radius-sm); font-size:0.75rem; cursor:pointer;">🗑️</button>
-                        </div>
                         {{-- Hasil: Bundle · Pcs · Tgl --}}
                         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; text-align:center;">
                             <div style="background:rgba(245,158,11,0.1); padding:5px; border-radius:6px;">
@@ -131,7 +131,7 @@
                                     style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
                                     bdl / {{ number_format($item->total_pcs) }} pcs</span>
                                 <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem;" title="Edit">✏️</a>
-                                <button type="button" onclick="deleteItem({{ $item->id }})" style="background:none; border:none; color:#ef4444; font-size:0.9rem; cursor:pointer;" title="Hapus">🗑️</button>
+                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="background:none; border:none; color:#ef4444; font-size:0.9rem; cursor:pointer;" title="Hapus">🗑️</button>
                             </div>
                         </div>
                     @endforeach
@@ -206,123 +206,8 @@
             </div>
         </div>
 
-        {{-- ── Mode Toggle ──────────────────────────────────────── --}}
-        <div style="display:flex; gap:8px; margin-bottom:var(--space-md);">
-            <button type="button" id="btnModeSplit" onclick="setMode('split')"
-                style="flex:1; padding:10px; border-radius:var(--radius-md); font-weight:800; font-size:0.82rem; border:2px solid var(--accent-primary); background:var(--accent-primary); color:#000; cursor:pointer; transition:all 0.2s;">
-                ↔️ Kanan - Kiri
-            </button>
-            <button type="button" id="btnModeTotal" onclick="setMode('total')"
-                style="flex:1; padding:10px; border-radius:var(--radius-md); font-weight:800; font-size:0.82rem; border:2px solid var(--border-medium); background:var(--bg-primary); color:var(--text-secondary); cursor:pointer; transition:all 0.2s;">
-                ⬛ Total Langsung
-            </button>
-        </div>
-
-        {{-- ── MODE KANAN-KIRI ──────────────────────────────────── --}}
-        <div id="modeSplitSection">
-            {{-- SISI KIRI --}}
-            <div class="card">
-                <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
-                    <span style="font-weight:800; font-size:0.85rem; color:var(--accent-primary);">◀️ SISI KIRI</span>
-                    <span id="leftTotalPcs"
-                        style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-secondary);">0
-                        pcs</span>
-                </div>
-                <div class="row-calc">
-                    <div class="row-calc-row">
-                        <div class="row-calc-field">
-                            <label>Bdl/Baris</label>
-                            <input type="number" class="row-calc-input" name="left_bdl_per_row" id="leftBdlPerRow" placeholder="0"
-                                min="0">
-                        </div>
-                        <span class="row-calc-op">×</span>
-                        <div class="row-calc-field">
-                            <label>Baris Atas</label>
-                            <input type="number" class="row-calc-input" name="left_rows" id="leftRows" placeholder="0" min="0">
-                        </div>
-                        <span class="row-calc-op">=</span>
-                        <div class="row-calc-field">
-                            <label>Bundle</label>
-                            <div class="row-calc-total" id="leftAutoBundle">0</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
-                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
-                    <input type="number" class="loose-input" name="left_adjust" id="leftAdjust" placeholder="0">
-                </div>
-                <div style="margin-top:8px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <input type="number" class="loose-input" name="left_loose" id="leftLoose" placeholder="0" min="0">
-                            <button type="button" onclick="openCamera('left')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
-                        </div>
-                    </div>
-                    <div id="leftAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
-                        <span id="leftAiText" style="color:#a5b4fc; font-weight:700;"></span>
-                    </div>
-                    <div id="leftAiPreview" style="display:none; margin-top:6px; position:relative; width:100%;">
-                        <img id="leftAiImg" style="width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border-subtle);">
-                        <div id="leftAiBoxes" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- SISI KANAN --}}
-            <div class="card">
-                <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
-                    <span style="font-weight:800; font-size:0.85rem; color:var(--accent-primary);">▶️ SISI KANAN</span>
-                    <span id="rightTotalPcs"
-                        style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-secondary);">0
-                        pcs</span>
-                </div>
-                <div class="row-calc">
-                    <div class="row-calc-row">
-                        <div class="row-calc-field">
-                            <label>Bdl/Baris</label>
-                            <input type="number" class="row-calc-input" name="right_bdl_per_row" id="rightBdlPerRow"
-                                placeholder="0" min="0">
-                        </div>
-                        <span class="row-calc-op">×</span>
-                        <div class="row-calc-field">
-                            <label>Baris Atas</label>
-                            <input type="number" class="row-calc-input" name="right_rows" id="rightRows" placeholder="0" min="0">
-                        </div>
-                        <span class="row-calc-op">=</span>
-                        <div class="row-calc-field">
-                            <label>Bundle</label>
-                            <div class="row-calc-total" id="rightAutoBundle">0</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
-                    <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
-                    <input type="number" class="loose-input" name="right_adjust" id="rightAdjust" placeholder="0">
-                </div>
-                <div style="margin-top:8px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <input type="number" class="loose-input" name="right_loose" id="rightLoose" placeholder="0" min="0">
-                            <button type="button" onclick="openCamera('right')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
-                        </div>
-                    </div>
-                    <div id="rightAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
-                        <span id="rightAiText" style="color:#a5b4fc; font-weight:700;"></span>
-                    </div>
-                    <div id="rightAiPreview" style="display:none; margin-top:6px; position:relative; width:100%;">
-                        <img id="rightAiImg" style="width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border-subtle);">
-                        <div id="rightAiBoxes" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {{-- ── MODE TOTAL LANGSUNG ───────────────────────────────── --}}
-        <div id="modeTotalSection" style="display:none;">
+        <div id="modeTotalSection">
             <div class="card" style="border:1px solid rgba(99,102,241,0.3); background:rgba(99,102,241,0.05);">
                 <div
                     style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
@@ -440,29 +325,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
         <script>
             let currentPcsPerBundle = {{ optional($sizes->first())->pcs_per_bundle ?? 0 }};
-            let currentMode = 'split'; // 'split' | 'total'
-
-            // ── Mode Toggle ─────────────────────────────────────────────
-            function setMode(mode) {
-                currentMode = mode;
-                document.getElementById('inputModeField').value = mode;
-
-                const isSplit = (mode === 'split');
-                document.getElementById('modeSplitSection').style.display = isSplit ? '' : 'none';
-                document.getElementById('modeTotalSection').style.display = isSplit ? 'none' : '';
-
-                // Style toggle buttons
-                const btnSplit = document.getElementById('btnModeSplit');
-                const btnTotal = document.getElementById('btnModeTotal');
-                btnSplit.style.background = isSplit ? 'var(--accent-primary)' : 'var(--bg-primary)';
-                btnSplit.style.color = isSplit ? '#000' : 'var(--text-secondary)';
-                btnSplit.style.borderColor = isSplit ? 'var(--accent-primary)' : 'var(--border-medium)';
-                btnTotal.style.background = !isSplit ? 'rgba(99,102,241,0.2)' : 'var(--bg-primary)';
-                btnTotal.style.color = !isSplit ? '#a5b4fc' : 'var(--text-secondary)';
-                btnTotal.style.borderColor = !isSplit ? 'rgba(99,102,241,0.5)' : 'var(--border-medium)';
-
-                calculate();
-            }
+            // (Kanan-Kiri Mode removed)
 
 
             // ── Delete Opname ────────────────────────────────────────────
@@ -578,17 +441,7 @@
                     return false;
                 }
 
-                // In total mode: populate left_ fields from total inputs, zero right_
-                if (currentMode === 'total') {
-                    document.getElementById('leftBdlPerRow').value = document.getElementById('totalBdlPerRow').value;
-                    document.getElementById('leftRows').value = document.getElementById('totalRows').value;
-                    document.getElementById('leftAdjust').value = document.getElementById('totalModeAdjust').value;
-                    document.getElementById('leftLoose').value = document.getElementById('totalModeLoose').value;
-                    document.getElementById('rightBdlPerRow').value = 0;
-                    document.getElementById('rightRows').value = 0;
-                    document.getElementById('rightAdjust').value = 0;
-                    document.getElementById('rightLoose').value = 0;
-                }
+                // Form valid
             });
 
             // ── Event Listeners ──────────────────────────────────────────
