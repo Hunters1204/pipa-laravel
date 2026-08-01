@@ -392,22 +392,24 @@
             }
 
             function executeDelete(id) {
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/opname/' + id;
+                
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '_token';
+                token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                form.appendChild(token);
 
-                fetch('/opname/' + id, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'text/html'
-                    },
-                    body: '_token=' + encodeURIComponent(token) + '&_method=DELETE',
-                    redirect: 'follow'
-                }).then(function(response) {
-                    window.location.reload();
-                }).catch(function(err) {
-                    showAlert('Gagal menghapus: ' + err.message);
-                });
+                const method = document.createElement('input');
+                method.type = 'hidden';
+                method.name = '_method';
+                method.value = 'DELETE';
+                form.appendChild(method);
+
+                document.body.appendChild(form);
+                form.submit();
             }
 
 
