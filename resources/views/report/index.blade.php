@@ -170,7 +170,7 @@
                 'total_pcs' => number_format($op->total_pcs)
             ];
             @endphp
-            <tr class="main-row" onclick="showDetailModal({{ htmlspecialchars(json_encode($detailData)) }})" title="Klik untuk melihat detail lengkap">
+            <tr class="main-row" onclick='showDetailModal(@json($detailData))' title="Klik untuk melihat detail lengkap">
                 <td style="color:var(--text-tertiary);">{{ $i + 1 }}</td>
                 <td style="font-family:var(--font-mono); color:var(--text-secondary);">
                     {{ $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-' }}
