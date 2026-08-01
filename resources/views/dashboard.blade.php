@@ -53,7 +53,7 @@
     @php
         $st = $warehouseStats[$wh->id] ?? ['counted' => 0, 'total' => 36, 'pct' => 0];
     @endphp
-    <a href="{{ route('warehouse.show', ['warehouse' => $wh->id, 'filter' => $filter]) }}" class="card" style="display: block; text-decoration: none; color: inherit; transition: transform 0.2s;">
+    <a href="{{ route('warehouse.show', ['id' => $wh->id, 'filter' => $filter]) }}" class="card" style="display: block; text-decoration: none; color: inherit; transition: transform 0.2s;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
             <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary);">
                 🏭 {{ $wh->name }}
