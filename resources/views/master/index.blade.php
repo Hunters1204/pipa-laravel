@@ -345,7 +345,6 @@
             overlay.innerHTML = `
                 <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:flex;align-items:center;justify-content:center;">
                     <div style="background:#1a2234;border:1px solid rgba(239,68,68,0.4);border-radius:16px;padding:24px;max-width:320px;width:90%;text-align:center;position:relative;">
-                        <button onclick="this.closest('[style*=fixed]').style.display='none'" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#9ca3af;font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
                         <div style="font-size:2rem;margin-bottom:8px;">🗑️</div>
                         <div style="font-weight:800;color:#fff;font-size:1rem;margin-bottom:6px;">Hapus Item Ini?</div>
                         <div id="deleteItemName" style="font-size:0.8rem;color:#f3f4f6;margin-bottom:8px;font-weight:600;"></div>

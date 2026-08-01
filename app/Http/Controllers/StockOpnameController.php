@@ -69,22 +69,11 @@ class StockOpnameController extends Controller
         $size = PipeSize::findOrFail($request->pipe_size_id);
         $pcsPerBundle = $size->pcs_per_bundle;
 
-        // Calculate left side
-        $leftAutoBdl = (int) $request->left_bdl_per_row * (int) $request->left_rows;
-        $leftBundles = max(0, $leftAutoBdl + (int) $request->left_adjust);
-        $leftLoose = (int) $request->left_loose;
-        $leftPcs = ($leftBundles * $pcsPerBundle) + $leftLoose;
-
-        // Calculate right side
-        $rightAutoBdl = (int) $request->right_bdl_per_row * (int) $request->right_rows;
-        $rightBundles = max(0, $rightAutoBdl + (int) $request->right_adjust);
-        $rightLoose = (int) $request->right_loose;
-        $rightPcs = ($rightBundles * $pcsPerBundle) + $rightLoose;
-
-        // Totals (loose digabung ke pcs)
-        $totalBundles = $leftBundles + $rightBundles;
-        $totalLoose = $leftLoose + $rightLoose;
-        $totalPcs = $leftPcs + $rightPcs; // includes loose
+        // Calculate total mode directly
+        $totalAutoBdl = (int) $request->total_bdl_per_row * (int) $request->total_rows;
+        $totalBundles = max(0, $totalAutoBdl + (int) $request->total_adjust);
+        $totalLoose = (int) $request->total_loose;
+        $totalPcs = ($totalBundles * $pcsPerBundle) + $totalLoose;
 
         $currentUser = Auth::user();
         $today = now()->toDateString();
@@ -98,17 +87,17 @@ class StockOpnameController extends Controller
             'pipe_type_id' => $request->pipe_type_id,
             'pipe_class_id' => $request->pipe_class_id ?: null,
 
-            'left_bdl_per_row' => (int) $request->left_bdl_per_row,
-            'left_rows' => (int) $request->left_rows,
-            'left_adjust' => (int) $request->left_adjust,
-            'left_bundles' => $leftBundles,
-            'left_loose' => $leftLoose,
+            'left_bdl_per_row' => (int) $request->total_bdl_per_row,
+            'left_rows' => (int) $request->total_rows,
+            'left_adjust' => (int) $request->total_adjust,
+            'left_bundles' => $totalBundles,
+            'left_loose' => $totalLoose,
 
-            'right_bdl_per_row' => (int) $request->right_bdl_per_row,
-            'right_rows' => (int) $request->right_rows,
-            'right_adjust' => (int) $request->right_adjust,
-            'right_bundles' => $rightBundles,
-            'right_loose' => $rightLoose,
+            'right_bdl_per_row' => 0,
+            'right_rows' => 0,
+            'right_adjust' => 0,
+            'right_bundles' => 0,
+            'right_loose' => 0,
 
             'total_bundles' => $totalBundles,
             'total_pcs' => $totalPcs,
@@ -142,6 +131,94 @@ class StockOpnameController extends Controller
 
         return redirect()->route('warehouse.show', $block->warehouse_id)
             ->with('success', "Data Blok {$block->code} berhasil disimpan!");
+    }
+
+    public function edit($id)
+    {
+        $editOpname = StockOpname::findOrFail($id);
+        $block = $editOpname->block;
+        $warehouse = $block->warehouse;
+
+        $today = now()->toDateString();
+
+        // Today's entries for this block
+        $todayOpnames = StockOpname::with(['pipeCategory', 'pipeSize', 'pipeType', 'pipeClass', 'user'])
+            ->where('block_id', $block->id)
+            ->where('input_date', $today)
+            ->latest()
+            ->get();
+
+        // Previous days' history
+        $historyOpnames = StockOpname::with(['pipeCategory', 'pipeSize', 'pipeType', 'pipeClass', 'user'])
+            ->where('block_id', $block->id)
+            ->whereDate('input_date', '<', $today)
+            ->latest()
+            ->get()
+            ->groupBy('input_date');
+
+        $categories = PipeCategory::all();
+        $sizes = PipeSize::all();
+        $types = PipeType::all();
+        $classes = PipeClass::all();
+
+        return view('opname.create', compact(
+            'warehouse',
+            'block',
+            'todayOpnames',
+            'historyOpnames',
+            'categories',
+            'sizes',
+            'types',
+            'classes',
+            'editOpname'
+        ));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $opname = StockOpname::findOrFail($id);
+
+        $request->validate([
+            'pipe_category_id' => 'required|exists:pipe_categories,id',
+            'pipe_size_id' => 'required|exists:pipe_sizes,id',
+            'pipe_type_id' => 'required|exists:pipe_types,id',
+            'pipe_class_id' => 'nullable|exists:pipe_classes,id',
+        ]);
+
+        $size = PipeSize::findOrFail($request->pipe_size_id);
+        $pcsPerBundle = $size->pcs_per_bundle;
+
+        // Calculate total mode directly
+        $totalAutoBdl = (int) $request->total_bdl_per_row * (int) $request->total_rows;
+        $totalBundles = max(0, $totalAutoBdl + (int) $request->total_adjust);
+        $totalLoose = (int) $request->total_loose;
+        $totalPcs = ($totalBundles * $pcsPerBundle) + $totalLoose;
+
+        $opname->update([
+            'pipe_category_id' => $request->pipe_category_id,
+            'pipe_size_id' => $request->pipe_size_id,
+            'pipe_type_id' => $request->pipe_type_id,
+            'pipe_class_id' => $request->pipe_class_id ?: null,
+
+            'total_bundles' => $totalBundles,
+            'total_pcs' => $totalPcs,
+            'total_loose' => $totalLoose,
+            // Assuming we don't save the formulas, just the totals since the previous fields were for left/right
+            // Wait, we DO need to save the formula (total_bdl_per_row, total_rows, etc) if we want to repopulate them!
+            // But the database schema doesn't have `total_bdl_per_row`. It has `left_bdl_per_row` etc.
+            // Let's repurpose `left_*` to store the total mode inputs so we can edit them later.
+            'left_bdl_per_row' => (int) $request->total_bdl_per_row,
+            'left_rows' => (int) $request->total_rows,
+            'left_adjust' => (int) $request->total_adjust,
+            'left_bundles' => $totalBundles,
+            'left_loose' => $totalLoose,
+        ]);
+
+        $block = $opname->block;
+        return redirect()->route('opname.create', [
+            'warehouse' => $block->warehouse_id,
+            'block' => $block->code
+        ])->with('success', "Item pipa berhasil diperbarui!");
     }
 
     public function destroy($id)

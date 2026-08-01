@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
     // Opname
     Route::get('/opname/{warehouse}/{block}', [StockOpnameController::class, 'create'])->name('opname.create');
     Route::post('/opname', [StockOpnameController::class, 'store'])->name('opname.store');
+    Route::get('/opname/{id}/edit', [StockOpnameController::class, 'edit'])->name('opname.edit');
+    Route::put('/opname/{id}', [StockOpnameController::class, 'update'])->name('opname.update');
     Route::delete('/opname/{id}', [StockOpnameController::class, 'destroy'])->name('opname.destroy');
 
     // Laporan

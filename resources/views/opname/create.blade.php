@@ -126,9 +126,13 @@
                                 @if($item->pipeClass)/ {{ $item->pipeClass->name }}@endif
                                 <span style="color:var(--text-tertiary);">({{ optional($item->pipeCategory)->name }})</span>
                             </span>
-                            <span
-                                style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
-                                bdl / {{ number_format($item->total_pcs) }} pcs</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span
+                                    style="font-family:var(--font-mono); color:var(--text-secondary); font-weight:700;">{{ $item->total_bundles }}
+                                    bdl / {{ number_format($item->total_pcs) }} pcs</span>
+                                <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.8rem;" title="Edit">✏️</a>
+                                <button type="button" onclick="deleteItem({{ $item->id }})" style="background:none; border:none; color:#ef4444; font-size:0.9rem; cursor:pointer;" title="Hapus">🗑️</button>
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -139,10 +143,13 @@
     {{-- ╔══════════════════════════════════════════════════════╗ --}}
     {{-- ║ FORM INPUT ║ --}}
     {{-- ╚══════════════════════════════════════════════════════╝ --}}
-    <form action="{{ route('opname.store') }}" method="POST" id="opnameForm">
+    <form action="{{ isset($editOpname) ? route('opname.update', $editOpname->id) : route('opname.store') }}" method="POST" id="opnameForm">
         @csrf
+        @if(isset($editOpname))
+            @method('PUT')
+        @endif
         <input type="hidden" name="block_id" value="{{ $block->id }}">
-        <input type="hidden" name="input_mode" id="inputModeField" value="split">
+        <input type="hidden" name="input_mode" id="inputModeField" value="total">
 
         {{-- ── Spesifikasi Pipa ─────────────────────────────────── --}}
         <div class="card">
@@ -328,14 +335,14 @@
                     <div class="row-calc-row">
                         <div class="row-calc-field">
                             <label>Bdl/Baris</label>
-                            <input type="number" class="row-calc-input" id="totalBdlPerRow" placeholder="0" min="0"
-                                style="border-color:rgba(99,102,241,0.4);">
+                            <input type="number" name="total_bdl_per_row" class="row-calc-input" id="totalBdlPerRow" placeholder="0" min="0"
+                                style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_bdl_per_row : '' }}">
                         </div>
                         <span class="row-calc-op">×</span>
                         <div class="row-calc-field">
                             <label>Baris Atas</label>
-                            <input type="number" class="row-calc-input" id="totalRows" placeholder="0" min="0"
-                                style="border-color:rgba(99,102,241,0.4);">
+                            <input type="number" name="total_rows" class="row-calc-input" id="totalRows" placeholder="0" min="0"
+                                style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_rows : '' }}">
                         </div>
                         <span class="row-calc-op">=</span>
                         <div class="row-calc-field">
@@ -347,13 +354,13 @@
                 </div>
                 <div style="margin-top:var(--space-md); display:flex; align-items:center; justify-content:space-between;">
                     <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">📦 Tambahan Bundle:</label>
-                    <input type="number" class="loose-input" id="totalModeAdjust" placeholder="0" style="border-color:rgba(99,102,241,0.4);">
+                    <input type="number" name="total_adjust" class="loose-input" id="totalModeAdjust" placeholder="0" style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_adjust : '' }}">
                 </div>
                 <div style="margin-top:8px;">
                     <div style="display:flex; align-items:center; justify-content:space-between;">
                         <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
                         <div style="display:flex; align-items:center; gap:6px;">
-                            <input type="number" class="loose-input" id="totalModeLoose" placeholder="0" min="0" style="border-color:rgba(99,102,241,0.4);">
+                            <input type="number" name="total_loose" class="loose-input" id="totalModeLoose" placeholder="0" min="0" style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_loose : '' }}">
                             <button type="button" onclick="openCamera('total')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
                         </div>
                     </div>
@@ -529,53 +536,21 @@
 
             // ── Main Calculate ───────────────────────────────────────────
             function calculate() {
-                let totalBundles, totalPcs, totalLoose;
-                if (currentMode === 'split') {
-                    // Left
-                    const lBdlRow = parseInt(document.getElementById('leftBdlPerRow').value) || 0;
-                    const lRows = parseInt(document.getElementById('leftRows').value) || 0;
-                    const lAdj = parseInt(document.getElementById('leftAdjust').value) || 0;
-                    const lLoose = parseInt(document.getElementById('leftLoose').value) || 0;
-                    const lAutoBdl = lBdlRow * lRows;
-                    const lBundles = Math.max(0, lAutoBdl + lAdj);
-                    const lPcs = lBundles * currentPcsPerBundle + lLoose;
-                    document.getElementById('leftAutoBundle').textContent = lAutoBdl;
-                    document.getElementById('leftTotalPcs').textContent = lPcs.toLocaleString('id-ID') + ' pcs';
+                // Total mode
+                const tBdlRow = parseInt(document.getElementById('totalBdlPerRow').value) || 0;
+                const tRows = parseInt(document.getElementById('totalRows').value) || 0;
+                const tAdj = parseInt(document.getElementById('totalModeAdjust').value) || 0;
+                const tLoose = parseInt(document.getElementById('totalModeLoose').value) || 0;
+                
+                const tAutoBdl = tBdlRow * tRows;
+                const tBundles = Math.max(0, tAutoBdl + tAdj);
+                const tPcs = tBundles * currentPcsPerBundle + tLoose;
+                
+                document.getElementById('totalAutoBundle').textContent = tAutoBdl;
+                document.getElementById('totalModeDisplay').textContent = tPcs.toLocaleString('id-ID') + ' pcs';
 
-                    // Right
-                    const rBdlRow = parseInt(document.getElementById('rightBdlPerRow').value) || 0;
-                    const rRows = parseInt(document.getElementById('rightRows').value) || 0;
-                    const rAdj = parseInt(document.getElementById('rightAdjust').value) || 0;
-                    const rLoose = parseInt(document.getElementById('rightLoose').value) || 0;
-                    const rAutoBdl = rBdlRow * rRows;
-                    const rBundles = Math.max(0, rAutoBdl + rAdj);
-                    const rPcs = rBundles * currentPcsPerBundle + rLoose;
-                    document.getElementById('rightAutoBundle').textContent = rAutoBdl;
-                    document.getElementById('rightTotalPcs').textContent = rPcs.toLocaleString('id-ID') + ' pcs';
-
-                    totalBundles = lBundles + rBundles;
-                    totalLoose = lLoose + rLoose;
-                    totalPcs = lPcs + rPcs;
-
-                } else {
-                    // Total mode
-                    const tBdlRow = parseInt(document.getElementById('totalBdlPerRow').value) || 0;
-                    const tRows = parseInt(document.getElementById('totalRows').value) || 0;
-                    const tAdj = parseInt(document.getElementById('totalModeAdjust').value) || 0;
-                    const tLoose = parseInt(document.getElementById('totalModeLoose').value) || 0;
-                    const tAutoBdl = tBdlRow * tRows;
-                    const tBundles = Math.max(0, tAutoBdl + tAdj);
-                    const tPcs = tBundles * currentPcsPerBundle + tLoose;
-                    document.getElementById('totalAutoBundle').textContent = tAutoBdl;
-                    document.getElementById('totalModeDisplay').textContent = tPcs.toLocaleString('id-ID') + ' pcs';
-
-                    totalBundles = tBundles;
-                    totalLoose = tLoose;
-                    totalPcs = tPcs;
-                }
-
-                document.getElementById('grandTotalBundles').textContent = totalBundles.toLocaleString('id-ID');
-                document.getElementById('grandTotalPcs').textContent = totalPcs.toLocaleString('id-ID');
+                document.getElementById('grandTotalBundles').textContent = tBundles.toLocaleString('id-ID');
+                document.getElementById('grandTotalPcs').textContent = tPcs.toLocaleString('id-ID');
             }
 
             // ── Custom Alert Modal ───────────────────────────────────────
@@ -585,7 +560,6 @@
                 overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
                 overlay.innerHTML = `
                     <div style="background:#1e1e2e;border:2px solid #ef4444;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center;position:relative;">
-                        <button onclick="this.closest('[style*=fixed]').remove()" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#9ca3af;font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
                         <div style="font-size:2rem;margin-bottom:8px;">⚠️</div>
                         <div style="color:#fff;font-weight:800;font-size:1rem;margin-bottom:8px;">${msg}</div>
                         <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:8px;background:#ef4444;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:800;font-size:0.9rem;cursor:pointer;width:100%;">OK</button>
