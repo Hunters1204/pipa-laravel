@@ -59,16 +59,8 @@
         border: 1px solid var(--border-medium);
         border-radius: var(--radius-md);
         color: #fff;
-        font-size: 0.85rem;
-    }
     .main-row { cursor: pointer; }
     .main-row:hover { background: rgba(245, 158, 11, 0.08) !important; }
-    .detail-row td { padding: 0 !important; border-bottom: 1px solid var(--border-subtle); }
-    .detail-box { 
-        display: flex; justify-content: space-between; align-items: center; 
-        background: rgba(0,0,0,0.25); padding: 10px 16px; margin: 4px 10px 12px 10px;
-        border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05);
-    }
 </style>
 @endpush
 
@@ -148,7 +140,7 @@
         </thead>
         <tbody>
             @foreach($opnames as $i => $op)
-            <tr class="main-row" onclick="toggleDetail('detail-row-{{$i}}')" title="Klik untuk melihat detail perhitungan">
+            <tr class="main-row" onclick="showDetailModal({{ $op->left_bdl_per_row }}, {{ $op->left_rows }}, {{ $op->left_adjust }}, {{ $op->total_bundles }}, {{ $op->total_loose }})" title="Klik untuk melihat detail perhitungan">
                 <td style="color:var(--text-tertiary);">{{ $i + 1 }}</td>
                 <td style="font-family:var(--font-mono); color:var(--text-secondary);">
                     {{ $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-' }}
@@ -173,22 +165,6 @@
                 <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent-primary);">{{ number_format($op->total_bundles) }}</td>
                 <td style="font-family:var(--font-mono); font-weight:800;">{{ number_format($op->total_pcs) }}</td>
             </tr>
-            <tr id="detail-row-{{$i}}" class="detail-row" style="display:none; background:rgba(255,255,255,0.01);">
-                <td colspan="13">
-                    <div class="detail-box">
-                        <div>
-                            <span style="color:var(--text-tertiary); font-size:0.65rem; text-transform:uppercase; display:block; margin-bottom:4px;">Detail Perhitungan Total Bundle</span>
-                            <span style="font-family:var(--font-mono); color:var(--accent-primary); font-size:0.85rem;">
-                                ({{ $op->left_bdl_per_row }} Bdl/Baris × {{ $op->left_rows }} Baris) + {{ $op->left_adjust }} Adjust = <span style="font-weight:800;">{{ $op->total_bundles }} Total Bdl</span>
-                            </span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="color:var(--text-tertiary); font-size:0.65rem; text-transform:uppercase; display:block; margin-bottom:4px;">Pieces Lepas</span>
-                            <span style="font-family:var(--font-mono); color:#fff; font-size:0.85rem; font-weight:800;">{{ $op->total_loose }} Pcs</span>
-                        </div>
-                    </div>
-                </td>
-            </tr>
             @endforeach
         </tbody>
         <tfoot>
@@ -209,13 +185,38 @@
 
 @push('scripts')
 <script>
-    function toggleDetail(id) {
-        const row = document.getElementById(id);
-        if (row.style.display === 'none' || row.style.display === '') {
-            row.style.display = 'table-row';
-        } else {
-            row.style.display = 'none';
-        }
+    function showDetailModal(bdlPerRow, rows, adjust, totalBdl, totalLoose) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px; backdrop-filter:blur(4px);';
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+        overlay.innerHTML = `
+            <div style="background:#1e1e2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;max-width:400px;width:100%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3 style="font-weight:800;color:var(--accent-primary);margin:0;font-size:1.1rem;">Rincian Perhitungan</h3>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
+                </div>
+                
+                <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:16px;margin-bottom:16px;">
+                    <div style="color:var(--text-tertiary);font-size:0.75rem;text-transform:uppercase;margin-bottom:8px;font-weight:700;">Perhitungan Total Bundle</div>
+                    <div style="font-family:var(--font-mono);color:#fff;font-size:1.1rem;display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <span style="color:var(--text-secondary);">(</span>
+                        <span>${bdlPerRow}</span> <span style="font-size:0.7rem;color:var(--text-tertiary);">Bdl/Baris</span> 
+                        <span style="color:var(--accent-primary);">×</span> 
+                        <span>${rows}</span> <span style="font-size:0.7rem;color:var(--text-tertiary);">Baris</span>
+                        <span style="color:var(--text-secondary);">)</span>
+                        <span style="color:var(--accent-primary);">+</span>
+                        <span>${adjust}</span> <span style="font-size:0.7rem;color:var(--text-tertiary);">Adjust</span>
+                        <span style="color:var(--text-secondary);">=</span>
+                        <span style="font-weight:800;color:var(--accent-primary);">${totalBdl}</span>
+                    </div>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center;">
+                    <div style="color:var(--text-tertiary);font-size:0.75rem;text-transform:uppercase;font-weight:700;">Pieces Lepas</div>
+                    <div style="font-family:var(--font-mono);color:#fff;font-size:1.2rem;font-weight:800;">${totalLoose} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:400;">Pcs</span></div>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
     }
 </script>
 @endpush
