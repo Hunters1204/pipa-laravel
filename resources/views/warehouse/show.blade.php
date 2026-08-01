@@ -26,21 +26,6 @@
     </div>
 </div>
 
-@if(isset($emptyBlocks) && count($emptyBlocks) > 0)
-<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-md);">
-    <div style="font-size: 0.85rem; font-weight: 800; color: #ef4444; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-        <span>🚨</span> BLOK BELUM OPNAME
-    </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-        @foreach($emptyBlocks as $eb)
-            <span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 4px;">
-                {{ $eb }}
-            </span>
-        @endforeach
-    </div>
-</div>
-@endif
-
 <div style="display: flex; flex-direction: column; gap: var(--space-md);">
     @foreach($groupedBlocks as $letter => $blocks)
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-md);">

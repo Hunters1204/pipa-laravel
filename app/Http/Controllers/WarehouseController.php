@@ -34,9 +34,6 @@ class WarehouseController extends Controller
             return substr($block->code, 0, 1);
         });
 
-        // Find empty blocks (0 opnames)
-        $emptyBlocks = $warehouse->blocks->filter(fn($b) => $b->stockOpnames->count() === 0)->pluck('code');
-
-        return view('warehouse.show', compact('warehouse', 'groupedBlocks', 'stats', 'filter', 'emptyBlocks'));
+        return view('warehouse.show', compact('warehouse', 'groupedBlocks', 'stats', 'filter'));
     }
 }
