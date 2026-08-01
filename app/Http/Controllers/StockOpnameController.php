@@ -293,6 +293,12 @@ class StockOpnameController extends Controller
     {
         $selectedWarehouse = $request->query('warehouse_id');
         $selectedDate = $request->query('opname_date');
+        $warehouseName = '';
+
+        if ($selectedWarehouse) {
+            $wh = Warehouse::find($selectedWarehouse);
+            if ($wh) $warehouseName = $wh->name;
+        }
 
         $query = StockOpname::with([
             'block.warehouse',
@@ -314,15 +320,16 @@ class StockOpnameController extends Controller
         }
 
         $opnames = $query->get();
-        $filename = "Laporan_Stock_Opname_" . date('Ymd_His') . ".xls";
+        $filename = "Laporan_Stock_Opname_" . ($warehouseName ? str_replace(' ', '_', $warehouseName) . "_" : "") . date('Ymd_His') . ".xls";
+        $excelTitle = "LAPORAN STOCK OPNAME" . ($warehouseName ? " - " . strtoupper($warehouseName) : "");
 
-        $response = new StreamedResponse(function () use ($opnames) {
+        $response = new StreamedResponse(function () use ($opnames, $excelTitle) {
             echo "<html>";
             echo "<head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head>";
             echo "<body>";
             echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
             echo "<thead>";
-            echo "<tr><th colspan='15' style='background:#f59e0b; color:#fff; font-size:16px; padding:10px;'>LAPORAN STOCK OPNAME</th></tr>";
+            echo "<tr><th colspan='15' style='background:#f59e0b; color:#fff; font-size:16px; padding:10px;'>" . $excelTitle . "</th></tr>";
             echo "<tr style='background:#fde68a; font-weight:bold;'>";
             echo "<th>No</th>";
             echo "<th>Tgl Input</th>";

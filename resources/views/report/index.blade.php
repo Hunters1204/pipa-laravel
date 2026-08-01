@@ -67,10 +67,20 @@
 @section('content')
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
     <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--accent-primary);">📋 LAPORAN FISIK</h3>
-    <a href="{{ route('report.export', ['warehouse_id' => $selectedWarehouse, 'opname_date' => $selectedDate]) }}"
-       class="btn btn-success" style="padding: 6px 12px; font-size: 0.78rem;">
-        📥 Export CSV
-    </a>
+</div>
+
+<div class="card" style="padding: var(--space-md); margin-bottom: var(--space-md);">
+    <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 8px;">Unduh Laporan Excel (Per Gudang):</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <a href="{{ route('report.export', ['opname_date' => $selectedDate]) }}" class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2);">
+            📥 Semua Gudang
+        </a>
+        @foreach($warehouses as $wh)
+        <a href="{{ route('report.export', ['warehouse_id' => $wh->id, 'opname_date' => $selectedDate]) }}" class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(34,197,94,0.15); color:var(--success); border:1px solid rgba(34,197,94,0.3);">
+            📥 {{ $wh->name }}
+        </a>
+        @endforeach
+    </div>
 </div>
 
 {{-- FILTER --}}
