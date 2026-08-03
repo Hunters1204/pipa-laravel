@@ -130,6 +130,11 @@
                                         {{ $item->total_bundles }} <span style="font-size:0.65rem; color:var(--text-tertiary); font-weight:400;">bdl</span> / 
                                         {{ number_format($item->total_pcs) }} <span style="font-size:0.65rem; color:var(--text-tertiary); font-weight:400;">pcs</span>
                                     </span>
+                                    <button type="button" class="btn-delete-opname" data-id="{{ $item->id }}"
+                                        style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.8rem;"
+                                        title="Hapus Data">
+                                        🗑️
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
