@@ -153,11 +153,13 @@ function showAlert(msg) {
 let cropper = null;
 let activeSide = null;
 
-function openCamera(side) {
+function openCamera(side, useCapture = true) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.capture = 'environment';
+    if (useCapture) {
+        input.capture = 'environment';
+    }
     input.style.display = 'none';
     document.body.appendChild(input);
 
@@ -259,7 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnOpenCameraTotal = document.getElementById('btnOpenCameraTotal');
     if (btnOpenCameraTotal) {
         btnOpenCameraTotal.addEventListener('click', () => {
-            openCamera('total');
+            openCamera('total', true);
+        });
+    }
+
+    const btnUploadImageTotal = document.getElementById('btnUploadImageTotal');
+    if (btnUploadImageTotal) {
+        btnUploadImageTotal.addEventListener('click', () => {
+            openCamera('total', false);
         });
     }
 

@@ -284,7 +284,8 @@
                         <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
                         <div style="display:flex; align-items:center; gap:6px;">
                             <input type="number" name="total_loose" class="loose-input" id="totalModeLoose" placeholder="0" min="0" style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_loose : '' }}">
-                            <button type="button" id="btnOpenCameraTotal" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
+                            <button type="button" id="btnOpenCameraTotal" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 Foto</button>
+                            <button type="button" id="btnUploadImageTotal" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📁 Upload</button>
                         </div>
                     </div>
                     <div id="totalAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
