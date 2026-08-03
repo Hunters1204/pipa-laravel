@@ -10,7 +10,7 @@ function deleteOpname(id) {
         overlay = document.createElement('div');
         overlay.id = 'deleteConfirmOverlay';
         overlay.innerHTML = `
-            <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:flex;align-items:center;justify-content:center;">
+            <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;">
                 <div style="background:#1a2234;border:1px solid rgba(239,68,68,0.4);border-radius:16px;padding:24px;max-width:320px;width:90%;text-align:center;">
                     <div style="font-size:2rem;margin-bottom:8px;">🗑️</div>
                     <div style="font-weight:800;color:#fff;font-size:1rem;margin-bottom:6px;">Hapus Item Ini?</div>
