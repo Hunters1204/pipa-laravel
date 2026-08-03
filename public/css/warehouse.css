@@ -1,0 +1,115 @@
+/* Warehouse Specific Styles */
+
+.wh-page-header {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-bottom: var(--space-md);
+}
+
+.btn-back {
+    color: var(--text-secondary); 
+    text-decoration: none; 
+    font-size: 0.85rem; 
+    font-weight: 600;
+}
+
+.wh-page-title {
+    font-weight: 800; 
+    font-size: 1rem; 
+    color: var(--accent-primary);
+}
+
+.filter-badge {
+    font-size: 0.7rem; 
+    color: var(--text-tertiary); 
+    font-weight: normal; 
+    margin-left: 6px;
+}
+
+.progress-card {
+    padding: var(--space-md); 
+    margin-bottom: var(--space-md);
+}
+
+.progress-text {
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 0.75rem; 
+    color: var(--text-secondary); 
+    margin-bottom: 6px;
+}
+
+.progress-value {
+    font-family: var(--font-mono); 
+    font-weight: 700;
+}
+
+.block-row-container {
+    display: flex; 
+    flex-direction: column; 
+    gap: var(--space-md);
+}
+
+.block-group {
+    background: var(--bg-card); 
+    border: 1px solid var(--border-subtle); 
+    border-radius: var(--radius-md); 
+    padding: var(--space-md);
+}
+
+.block-group-title {
+    font-size: 0.75rem; 
+    font-weight: 800; 
+    color: var(--accent-primary); 
+    margin-bottom: var(--space-sm);
+}
+
+.block-grid {
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: var(--space-sm);
+}
+
+.block-item {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    padding: var(--space-md); 
+    border-radius: var(--radius-md); 
+    text-decoration: none; 
+    border: 1px solid var(--border-subtle); 
+    background: var(--bg-primary);
+    transition: transform 0.2s;
+}
+
+.block-item:hover {
+    transform: translateY(-2px);
+}
+
+.block-item.has-data {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.block-code {
+    font-weight: 800; 
+    font-size: 1rem; 
+    color: var(--text-primary); 
+    font-family: var(--font-mono);
+}
+
+.block-item.has-data .block-code {
+    color: var(--success);
+}
+
+.block-subtitle {
+    font-size: 0.62rem; 
+    color: var(--text-tertiary); 
+    margin-top: 2px;
+}
+
+.block-item.has-data .block-subtitle {
+    color: var(--success);
+}

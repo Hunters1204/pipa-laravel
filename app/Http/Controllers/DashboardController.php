@@ -36,20 +36,24 @@ class DashboardController extends Controller
         $totalPcs = $applyFilter(StockOpname::query())->sum('total_pcs');
         $totalWeight = $applyFilter(StockOpname::query())->sum('total_weight');
 
+        // Aggregate query for warehouse stats
+        $opnameAggregates = StockOpname::query()
+            ->join('blocks', 'stock_opnames.block_id', '=', 'blocks.id')
+            ->selectRaw('
+                blocks.warehouse_id,
+                count(distinct block_id) as counted_blocks,
+                sum(total_pcs) as total_pcs,
+                sum(total_bundles) as total_bundles
+            ');
+        $opnameAggregates = $applyFilter($opnameAggregates)->groupBy('blocks.warehouse_id')->get()->keyBy('warehouse_id');
+
         // Progress per warehouse
         $warehouseStats = [];
         foreach ($warehouses as $wh) {
-            $countedBlocks = $applyFilter(StockOpname::query())->whereHas('block', function ($q) use ($wh) {
-                $q->where('warehouse_id', $wh->id);
-            })->distinct('block_id')->count('block_id');
-            
-            $totalPcsWh = $applyFilter(StockOpname::query())->whereHas('block', function ($q) use ($wh) {
-                $q->where('warehouse_id', $wh->id);
-            })->sum('total_pcs');
-            
-            $totalBundlesWh = $applyFilter(StockOpname::query())->whereHas('block', function ($q) use ($wh) {
-                $q->where('warehouse_id', $wh->id);
-            })->sum('total_bundles');
+            $agg = $opnameAggregates->get($wh->id);
+            $countedBlocks = $agg ? $agg->counted_blocks : 0;
+            $totalPcsWh = $agg ? $agg->total_pcs : 0;
+            $totalBundlesWh = $agg ? $agg->total_bundles : 0;
 
             $pct = $wh->blocks_count > 0 ? round(($countedBlocks / $wh->blocks_count) * 100) : 0;
 
@@ -63,15 +67,23 @@ class DashboardController extends Controller
             ];
         }
 
+        // Aggregate query for users per warehouse
+        $userOpnameStats = StockOpname::query()
+            ->join('blocks', 'stock_opnames.block_id', '=', 'blocks.id')
+            ->join('warehouses', 'blocks.warehouse_id', '=', 'warehouses.id')
+            ->selectRaw('warehouses.name as wh_name, stock_opnames.petugas_name, count(*) as user_count')
+            ->whereNotNull('stock_opnames.petugas_name');
+        
+        $userOpnameStats = $applyFilter($userOpnameStats)
+            ->groupBy('warehouses.name', 'stock_opnames.petugas_name')
+            ->get();
+        
         $opnameUsers = [];
-        $filteredOpnames = $applyFilter(StockOpname::with('block.warehouse'))->get();
-        foreach($filteredOpnames as $op) {
-            if (!$op->block || !$op->block->warehouse) continue;
-            $whName = $op->block->warehouse->name;
-            $user = $op->petugas_name ?: 'Tidak Diketahui';
+        foreach($userOpnameStats as $stat) {
+            $whName = $stat->wh_name;
+            $user = $stat->petugas_name ?: 'Tidak Diketahui';
             if(!isset($opnameUsers[$whName])) $opnameUsers[$whName] = [];
-            if(!isset($opnameUsers[$whName][$user])) $opnameUsers[$whName][$user] = 0;
-            $opnameUsers[$whName][$user]++;
+            $opnameUsers[$whName][$user] = $stat->user_count;
         }
 
         // Top 3 Kategori Pipa berdasarkan Total Bundle
