@@ -19,12 +19,12 @@ class DashboardController extends Controller
 
         $applyFilter = function($q) use ($filter) {
             if ($filter === 'today') {
-                $q->whereDate('created_at', now()->toDateString());
+                $q->whereDate('stock_opnames.created_at', now()->toDateString());
             } elseif ($filter === 'yesterday') {
-                $q->whereDate('created_at', now()->subDay()->toDateString());
+                $q->whereDate('stock_opnames.created_at', now()->subDay()->toDateString());
             } elseif ($filter === 'month') {
-                $q->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+                $q->whereMonth('stock_opnames.created_at', now()->month)
+                  ->whereYear('stock_opnames.created_at', now()->year);
             }
             return $q;
         };
