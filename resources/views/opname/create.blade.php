@@ -180,7 +180,7 @@
                     @foreach($existingSpecs as $spec)
                         <button type="button" 
                                 class="quick-spec-btn"
-                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }}, this)"
+                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }}, {{ $spec->left_bdl_per_row ?? 0 }}, {{ $spec->left_rows ?? 0 }}, {{ $spec->left_adjust ?? 0 }}, {{ $spec->total_loose ?? 0 }}, this)"
                                 style="flex-shrink:0; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:var(--accent-primary); padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
                             {{ optional($spec->pipeSize)->size_label }} {{ optional($spec->pipeType)->code }} @if($spec->pipeClass) / {{ $spec->pipeClass->name }} @endif
                         </button>
@@ -435,11 +435,16 @@
                 });
             }
 
-            function applySpec(categoryId, sizeId, typeId, classId, btnElement) {
+            function applySpec(categoryId, sizeId, typeId, classId, bdlPerRow, rows, adjust, loose, btnElement) {
                 document.getElementById('pipeCategory').value = categoryId;
                 document.getElementById('pipeSize').value = sizeId;
                 document.getElementById('pipeType').value = typeId;
                 document.getElementById('pipeClass').value = classId || '';
+                
+                document.getElementById('totalBdlPerRow').value = bdlPerRow || '';
+                document.getElementById('totalRows').value = rows || '';
+                document.getElementById('totalModeAdjust').value = adjust || '';
+                document.getElementById('totalModeLoose').value = loose || '';
                 
                 clearQuickSelect();
                 if (btnElement) {

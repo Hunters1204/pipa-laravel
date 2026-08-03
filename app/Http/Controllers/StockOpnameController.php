@@ -85,34 +85,38 @@ class StockOpnameController extends Controller
         $currentUser = Auth::user();
         $today = now()->toDateString();
 
-        StockOpname::create([
-            'user_id' => $currentUser->id,
-            'petugas_name' => $currentUser->name,
-            'block_id' => $request->block_id,
-            'pipe_category_id' => $request->pipe_category_id,
-            'pipe_size_id' => $request->pipe_size_id,
-            'pipe_type_id' => $request->pipe_type_id,
-            'pipe_class_id' => $request->pipe_class_id ?: null,
+        StockOpname::updateOrCreate(
+            [
+                'block_id' => $request->block_id,
+                'pipe_category_id' => $request->pipe_category_id,
+                'pipe_size_id' => $request->pipe_size_id,
+                'pipe_type_id' => $request->pipe_type_id,
+                'pipe_class_id' => $request->pipe_class_id ?: null,
+                'input_date' => $today,
+            ],
+            [
+                'user_id' => $currentUser->id,
+                'petugas_name' => $currentUser->name,
+                
+                'left_bdl_per_row' => (int) $request->total_bdl_per_row,
+                'left_rows' => (int) $request->total_rows,
+                'left_adjust' => (int) $request->total_adjust,
+                'left_bundles' => $totalBundles,
+                'left_loose' => $totalLoose,
 
-            'left_bdl_per_row' => (int) $request->total_bdl_per_row,
-            'left_rows' => (int) $request->total_rows,
-            'left_adjust' => (int) $request->total_adjust,
-            'left_bundles' => $totalBundles,
-            'left_loose' => $totalLoose,
+                'right_bdl_per_row' => 0,
+                'right_rows' => 0,
+                'right_adjust' => 0,
+                'right_bundles' => 0,
+                'right_loose' => 0,
 
-            'right_bdl_per_row' => 0,
-            'right_rows' => 0,
-            'right_adjust' => 0,
-            'right_bundles' => 0,
-            'right_loose' => 0,
-
-            'total_bundles' => $totalBundles,
-            'total_pcs' => $totalPcs,
-            'total_loose' => $totalLoose,
-            'total_weight' => 0,
-            'opname_date' => $today,
-            'input_date' => $today,
-        ]);
+                'total_bundles' => $totalBundles,
+                'total_pcs' => $totalPcs,
+                'total_loose' => $totalLoose,
+                'total_weight' => 0,
+                'opname_date' => $today,
+            ]
+        );
 
         $block = Block::findOrFail($request->block_id);
 
