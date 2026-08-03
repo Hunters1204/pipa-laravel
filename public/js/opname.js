@@ -1,5 +1,4 @@
-let currentPcsPerBundle = 0; // Value set via initial fetch or blade
-
+let currentPcsPerBundle = 0; // Value set via initial fetch or data-attribute
 // ── Delete Opname ────────────────────────────────────────────
 let pendingDeleteId = null;
 
@@ -202,6 +201,8 @@ function openCamera(side) {
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('opnameForm');
     if(form) {
+        currentPcsPerBundle = parseInt(form.getAttribute('data-pcs-per-bundle')) || 0;
+        
         form.addEventListener('submit', function (e) {
             const grandTotalBundles = document.getElementById('grandTotalBundles');
             const grandTotalPcs = document.getElementById('grandTotalPcs');
@@ -213,6 +214,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAlert('Jumlah bundle atau pcs belum diisi!<br><small>Masukkan jumlah pipa terlebih dahulu.</small>');
                 return false;
             }
+        });
+    }
+
+    // Bind History Modal
+    const btnShowHistory = document.getElementById('btnShowHistory');
+    if (btnShowHistory) {
+        btnShowHistory.addEventListener('click', () => {
+            document.getElementById('historyModal').style.display = 'flex';
+        });
+    }
+    const btnCloseHistory = document.getElementById('btnCloseHistory');
+    if (btnCloseHistory) {
+        btnCloseHistory.addEventListener('click', () => {
+            document.getElementById('historyModal').style.display = 'none';
+        });
+    }
+
+    // Bind Delete Opname
+    document.querySelectorAll('.btn-delete-opname').forEach(btn => {
+        btn.addEventListener('click', function() {
+            deleteOpname(this.getAttribute('data-id'));
+        });
+    });
+
+    // Bind Quick Select Spec
+    document.querySelectorAll('.quick-spec-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            applySpec(
+                this.getAttribute('data-category'),
+                this.getAttribute('data-size'),
+                this.getAttribute('data-type'),
+                this.getAttribute('data-class'),
+                this.getAttribute('data-bdl'),
+                this.getAttribute('data-rows'),
+                this.getAttribute('data-adjust'),
+                this.getAttribute('data-loose'),
+                this
+            );
+        });
+    });
+
+    // Bind Camera AI
+    const btnOpenCameraTotal = document.getElementById('btnOpenCameraTotal');
+    if (btnOpenCameraTotal) {
+        btnOpenCameraTotal.addEventListener('click', () => {
+            openCamera('total');
         });
     }
 

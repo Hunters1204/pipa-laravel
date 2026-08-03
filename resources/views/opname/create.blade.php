@@ -19,7 +19,7 @@
         </div>
         <div style="flex: 1; text-align: right;">
             @if($historyOpnames->count() > 0)
-                <button type="button" onclick="document.getElementById('historyModal').style.display='flex'" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                <button type="button" id="btnShowHistory" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                     🕒 Histori
                 </button>
             @endif
@@ -54,7 +54,7 @@
                             </div>
                             <div style="display:flex; gap:6px; align-items:center;">
                                 <a href="{{ route('opname.edit', $item->id) }}" style="color:var(--accent-primary); text-decoration:none; font-size:0.9rem; padding:4px 8px; border:1px solid var(--accent-primary); border-radius:var(--radius-sm); background:rgba(245,158,11,0.1); display:flex; align-items:center;" title="Edit">✏️</a>
-                                <button type="button" onclick="deleteOpname({{ $item->id }})" style="color:#ef4444; border:1px solid rgba(239,68,68,0.4); padding:4px 8px; border-radius:var(--radius-sm); background:rgba(239,68,68,0.1); font-size:0.9rem; cursor:pointer; display:flex; align-items:center;" title="Hapus">🗑️</button>
+                                <button type="button" class="btn-delete-opname" data-id="{{ $item->id }}" style="color:#ef4444; border:1px solid rgba(239,68,68,0.4); padding:4px 8px; border-radius:var(--radius-sm); background:rgba(239,68,68,0.1); font-size:0.9rem; cursor:pointer; display:flex; align-items:center;" title="Hapus">🗑️</button>
                             </div>
                         </div>
                         {{-- Hasil: Bundle · Pcs · Tgl --}}
@@ -106,7 +106,7 @@
         <div style="background: #1e1e2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-height: 80vh; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3 style="font-weight: 800; color: var(--text-primary); margin: 0; font-size: 1.1rem;">🗂️ Riwayat Inputan Sebelumnya</h3>
-                <button type="button" onclick="document.getElementById('historyModal').style.display='none'" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+                <button type="button" id="btnCloseHistory" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
             </div>
             
             <div style="overflow-y: auto; padding-right: 8px;">
@@ -143,7 +143,7 @@
     {{-- ╔══════════════════════════════════════════════════════╗ --}}
     {{-- ║ FORM INPUT ║ --}}
     {{-- ╚══════════════════════════════════════════════════════╝ --}}
-    <form action="{{ isset($editOpname) ? route('opname.update', $editOpname->id) : route('opname.store') }}" method="POST" id="opnameForm">
+    <form action="{{ isset($editOpname) ? route('opname.update', $editOpname->id) : route('opname.store') }}" method="POST" id="opnameForm" data-pcs-per-bundle="{{ optional($sizes->first())->pcs_per_bundle ?? 0 }}">
         @csrf
         @if(isset($editOpname))
             @method('PUT')
@@ -168,7 +168,14 @@
                     @foreach($existingSpecs as $spec)
                         <button type="button" 
                                 class="quick-spec-btn"
-                                onclick="applySpec({{ $spec->pipe_category_id }}, {{ $spec->pipe_size_id }}, {{ $spec->pipe_type_id }}, {{ $spec->pipe_class_id ?: 'null' }}, {{ $spec->left_bdl_per_row ?? 0 }}, {{ $spec->left_rows ?? 0 }}, {{ $spec->left_adjust ?? 0 }}, {{ $spec->total_loose ?? 0 }}, this)"
+                                data-category="{{ $spec->pipe_category_id }}"
+                                data-size="{{ $spec->pipe_size_id }}"
+                                data-type="{{ $spec->pipe_type_id }}"
+                                data-class="{{ $spec->pipe_class_id ?: 'null' }}"
+                                data-bdl="{{ $spec->left_bdl_per_row ?? 0 }}"
+                                data-rows="{{ $spec->left_rows ?? 0 }}"
+                                data-adjust="{{ $spec->left_adjust ?? 0 }}"
+                                data-loose="{{ $spec->total_loose ?? 0 }}"
                                 style="flex-shrink:0; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:var(--accent-primary); padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
                             {{ optional($spec->pipeSize)->size_label }} {{ optional($spec->pipeType)->code }} @if($spec->pipeClass) / {{ $spec->pipeClass->name }} @endif
                         </button>
@@ -277,7 +284,7 @@
                         <label style="font-size:0.73rem; font-weight:600; color:var(--text-secondary);">🔩 Pcs Lepas:</label>
                         <div style="display:flex; align-items:center; gap:6px;">
                             <input type="number" name="total_loose" class="loose-input" id="totalModeLoose" placeholder="0" min="0" style="border-color:rgba(99,102,241,0.4);" value="{{ isset($editOpname) ? $editOpname->left_loose : '' }}">
-                            <button type="button" onclick="openCamera('total')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
+                            <button type="button" id="btnOpenCameraTotal" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; padding:8px 10px; border-radius:var(--radius-md); font-size:0.8rem; cursor:pointer; white-space:nowrap; font-weight:700;">📷 AI</button>
                         </div>
                     </div>
                     <div id="totalAiResult" style="display:none; margin-top:6px; padding:6px 10px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); font-size:0.72rem;">
@@ -354,14 +361,6 @@
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-        <script>
-            // Set initial value from server
-            window.addEventListener('DOMContentLoaded', () => {
-                if(typeof currentPcsPerBundle !== 'undefined') {
-                    currentPcsPerBundle = {{ optional($sizes->first())->pcs_per_bundle ?? 0 }};
-                }
-            });
-        </script>
         <script src="{{ asset('js/opname.js') }}"></script>
     @endpush
 @endsection
