@@ -1,0 +1,178 @@
+/* Report CSS */
+
+.report-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: var(--space-lg);
+}
+
+.report-table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+}
+
+.report-table thead tr {
+    background: rgba(245, 158, 11, 0.12);
+    border-bottom: 2px solid var(--border-accent);
+}
+
+.report-table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 0.63rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.report-table tbody tr {
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.15s;
+}
+
+.report-table tbody tr:hover { 
+    background: rgba(255,255,255,0.03); 
+}
+
+.report-table td {
+    padding: 7px 10px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.report-table tfoot td {
+    padding: 8px 10px;
+    font-weight: 800;
+    background: rgba(245,158,11,0.08);
+    border-top: 2px solid var(--border-accent);
+}
+
+.badge { 
+    display: inline-block; 
+    padding: 2px 7px; 
+    border-radius: 4px; 
+    font-size: 0.63rem; 
+    font-weight: 800; 
+}
+.badge-ga { 
+    background: rgba(34,197,94,0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(34,197,94,0.3); 
+}
+.badge-gb { 
+    background: rgba(245,158,11,0.15); 
+    color: var(--accent-primary); 
+    border: 1px solid rgba(245,158,11,0.3); 
+}
+.badge-class { 
+    background: rgba(99,102,241,0.15); 
+    color: #a5b4fc; 
+    border: 1px solid rgba(99,102,241,0.3); 
+}
+
+.filter-select {
+    flex: 1;
+    min-width: 130px;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    color: #fff;
+}
+
+.main-row { cursor: pointer; }
+.main-row:hover { background: rgba(245, 158, 11, 0.08) !important; }
+
+/* Header & Export Styles */
+.report-header {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-bottom: var(--space-md);
+}
+.report-title {
+    font-weight: 800; 
+    font-size: 1.05rem; 
+    color: var(--accent-primary);
+}
+.export-card {
+    padding: var(--space-md); 
+    margin-bottom: var(--space-md);
+}
+.export-label {
+    font-size: 0.72rem; 
+    font-weight: 800; 
+    color: var(--text-tertiary); 
+    text-transform: uppercase; 
+    margin-bottom: 8px;
+}
+.export-buttons {
+    display: flex; 
+    gap: 8px; 
+    flex-wrap: wrap;
+}
+.btn-export-all {
+    padding: 6px 12px; 
+    font-size: 0.75rem; 
+    background: rgba(255,255,255,0.1); 
+    color: #fff; 
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-export-wh {
+    padding: 6px 12px; 
+    font-size: 0.75rem; 
+    background: rgba(34,197,94,0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(34,197,94,0.3);
+}
+.filter-form-wrap {
+    display: flex; 
+    gap: var(--space-sm); 
+    flex-wrap: wrap;
+}
+
+/* Summary Cards */
+.summary-grid {
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: var(--space-xs); 
+    text-align: center;
+}
+.summary-val {
+    font-size: 1rem; 
+    font-weight: 800; 
+    font-family: var(--font-mono);
+}
+.summary-val-records { color: var(--text-secondary); }
+.summary-val-bundles { color: var(--accent-primary); }
+.summary-val-pcs { color: #fff; }
+.summary-label {
+    font-size: 0.58rem; 
+    color: var(--text-tertiary); 
+    font-weight: 700;
+}
+
+/* Table Text Colors */
+.text-tertiary { color: var(--text-tertiary); }
+.text-secondary { color: var(--text-secondary); }
+.font-mono { font-family: var(--font-mono); }
+.text-accent { color: var(--accent-primary); }
+.font-bold { font-weight: 800; }
+.font-semibold { font-weight: 700; }
+
+.empty-state {
+    text-align: center; 
+    padding: var(--space-xl) var(--space-md); 
+    color: var(--text-tertiary); 
+    font-size: 0.85rem;
+}
+.empty-state-icon {
+    font-size: 2rem; 
+    margin-bottom: 8px;
+}
