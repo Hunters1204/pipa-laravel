@@ -172,6 +172,12 @@ class StockOpnameController extends Controller
         $types = PipeType::all();
         $classes = PipeClass::all();
 
+        // Get unique pipe specifications that have been inputted in this block
+        $allOpnames = $todayOpnames->merge($historyOpnames->flatten());
+        $existingSpecs = $allOpnames->unique(function ($item) {
+            return $item->pipe_category_id . '-' . $item->pipe_size_id . '-' . $item->pipe_type_id . '-' . $item->pipe_class_id;
+        })->take(8);
+
         return view('opname.create', compact(
             'warehouse',
             'block',
@@ -181,7 +187,8 @@ class StockOpnameController extends Controller
             'sizes',
             'types',
             'classes',
-            'editOpname'
+            'editOpname',
+            'existingSpecs'
         ));
     }
 

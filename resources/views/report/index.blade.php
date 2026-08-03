@@ -96,14 +96,14 @@
             $detailData = [
                 'date' => $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-',
                 'petugas' => $op->petugas_name,
-                'warehouse' => optional($op->block)->warehouse->name ?? '-',
-                'block' => optional($op->block)->code ?? '-',
-                'sloc' => optional($op->block)->sloc_code ?? '-',
-                'category' => optional($op->pipeCategory)->name ?? '-',
-                'size' => optional($op->pipeSize)->size_label ?? '-',
-                'grade' => optional($op->pipeType)->code ?? '-',
-                'class' => optional($op->pipeClass)->name ?? '-',
-                'pcs_bdl' => optional($op->pipeSize)->pcs_per_bundle ?? 0,
+                'warehouse' => $op->block?->warehouse?->name ?? '-',
+                'block' => $op->block?->code ?? '-',
+                'sloc' => $op->block?->sloc_code ?? '-',
+                'category' => $op->pipeCategory?->name ?? '-',
+                'size' => $op->pipeSize?->size_label ?? '-',
+                'grade' => $op->pipeType?->code ?? '-',
+                'class' => $op->pipeClass?->name ?? '-',
+                'pcs_bdl' => $op->pipeSize?->pcs_per_bundle ?? 0,
                 'left_bdl_per_row' => $op->left_bdl_per_row,
                 'left_rows' => $op->left_rows,
                 'left_adjust' => $op->left_adjust,
@@ -118,11 +118,11 @@
                     {{ $op->created_at ? $op->created_at->format('d/m/Y H:i:s') : '-' }}
                 </td>
                 <td>{{ $op->petugas_name }}</td>
-                <td class="text-secondary">{{ optional($op->block)->warehouse->name ?? '-' }}</td>
-                <td class="font-mono font-bold text-accent">{{ optional($op->block)->code ?? '-' }}</td>
-                <td class="font-mono text-tertiary">{{ optional($op->block)->sloc_code ?? '-' }}</td>
-                <td class="text-secondary">{{ optional($op->pipeCategory)->name ?? '-' }}</td>
-                <td class="font-mono font-semibold">{{ optional($op->pipeSize)->size_label ?? '-' }}</td>
+                <td class="text-secondary">{{ $op->block?->warehouse?->name ?? '-' }}</td>
+                <td class="font-mono font-bold text-accent">{{ $op->block?->code ?? '-' }}</td>
+                <td class="font-mono text-tertiary">{{ $op->block?->sloc_code ?? '-' }}</td>
+                <td class="text-secondary">{{ $op->pipeCategory?->name ?? '-' }}</td>
+                <td class="font-mono font-semibold">{{ $op->pipeSize?->size_label ?? '-' }}</td>
                 <td>
                     @if($op->pipeType)
                         <span class="badge {{ $op->pipeType->code === 'G-A' ? 'badge-ga' : 'badge-gb' }}">{{ $op->pipeType->code }}</span>
@@ -140,6 +140,7 @@
             @endforeach
         </tbody>
         <tfoot>
+            <tr>
                 <td colspan="11" style="text-align:right; color:var(--accent-primary);">TOTAL</td>
                 <td class="font-mono text-accent">{{ number_format($summary['total_bundles']) }}</td>
                 <td class="font-mono">{{ number_format($summary['total_pcs']) }}</td>
