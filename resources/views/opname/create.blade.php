@@ -201,7 +201,9 @@
                     <select name="pipe_size_id" id="pipeSize"
                         style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
                         @foreach($sizes as $sz)
-                            <option value="{{ $sz->id }}">{{ $sz->size_label }} ({{ $sz->pcs_per_bundle }}/bdl)</option>
+                            <option value="{{ $sz->id }}" {{ (isset($editOpname) && $editOpname->pipe_size_id == $sz->id) ? 'selected' : '' }}>
+                                {{ $sz->size_label }} ({{ $sz->pcs_per_bundle }}/bdl)
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -211,7 +213,9 @@
                     <select name="pipe_type_id" id="pipeType"
                         style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
                         @foreach($types as $tp)
-                            <option value="{{ $tp->id }}">{{ $tp->code }}</option>
+                            <option value="{{ $tp->id }}" {{ (isset($editOpname) && $editOpname->pipe_type_id == $tp->id) ? 'selected' : '' }}>
+                                {{ $tp->code }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -224,7 +228,9 @@
                         style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
                         <option value="">— Pilih Class —</option>
                         @foreach($classes as $cl)
-                            <option value="{{ $cl->id }}">{{ $cl->name }}</option>
+                            <option value="{{ $cl->id }}" {{ (isset($editOpname) && $editOpname->pipe_class_id == $cl->id) ? 'selected' : '' }}>
+                                {{ $cl->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -234,7 +240,9 @@
                     <select name="pipe_category_id" id="pipeCategory"
                         style="width:100%; padding:9px var(--space-md); background:var(--bg-input); border:1px solid var(--border-medium); border-radius:var(--radius-md); color:#fff; font-weight:700; font-size:0.88rem;">
                         @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            <option value="{{ $cat->id }}" {{ (isset($editOpname) && $editOpname->pipe_category_id == $cat->id) ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
