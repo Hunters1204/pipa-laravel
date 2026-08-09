@@ -81,6 +81,7 @@ PROMPT;
             'generationConfig' => [
                 'temperature'     => 0.1,
                 'maxOutputTokens' => 8192,
+                'response_mime_type' => 'application/json',
             ],
         ];
 
