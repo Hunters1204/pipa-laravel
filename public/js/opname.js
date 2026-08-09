@@ -303,8 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
 
             setTimeout(() => {
-                const canvas = cropper.getCroppedCanvas();
-                const croppedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                const canvas = cropper.getCroppedCanvas({
+                    maxWidth: 1024,
+                    maxHeight: 1024
+                });
+                const croppedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                 
                 document.getElementById('cropModal').style.display = 'none';
                 cropper.destroy();
@@ -411,7 +414,8 @@ async function countPipesWithAI(base64Image, side) {
             calculate();
         } else {
             if(resultText) {
-                resultText.innerHTML = `❌ ${data.error || 'Gagal menganalisis foto.'}`;
+                const errMsg = data.error || data.message || 'Gagal menganalisis foto (Mungkin ukuran foto terlalu besar/server error).';
+                resultText.innerHTML = `❌ ${errMsg}`;
                 resultText.style.color = '#ef4444';
             }
         }
